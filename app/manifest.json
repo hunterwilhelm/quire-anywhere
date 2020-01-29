@@ -10,12 +10,11 @@
     "<all_urls>"
   ],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "page": "background.html"
   },
   "browser_action": {
     "default_title": "Quire Anywhere",
-    "default_popup": "popup.html",
+    "default_popup": "/views/popup/popup.html",
     "default_icon": {
       "16": "images/quire-icon16.png",
       "32": "images/quire-icon32.png",
