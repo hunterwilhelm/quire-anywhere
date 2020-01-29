@@ -1,0 +1,33 @@
+{
+  "name": "Quire Anywhere",
+  "version": "1.0",
+  "description": "A Good Extension For Quire!",
+  "permissions": [
+    "activeTab", 
+    "contextMenus",
+    "storage",
+    "declarativeContent",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_title": "Quire Anywhere",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/quire-icon16.png",
+      "32": "images/quire-icon32.png",
+      "48": "images/quire-icon48.png",
+      "128": "images/quire-icon128.png"
+    }
+  },
+  "icons": {
+    "16": "images/quire-icon16.png",
+    "32": "images/quire-icon32.png",
+    "48": "images/quire-icon48.png",
+    "128": "images/quire-icon128.png"
+  },
+  "manifest_version": 2
+}

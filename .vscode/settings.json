@@ -1,0 +1,11 @@
+{
+    "json.schemas": [
+        // JSON schema for Google Chrome extension manifest files
+        {
+            "fileMatch": [
+                "/manifest.json"
+            ],
+            "url": "http://json.schemastore.org/chrome-manifest"
+        }
+    ]
+}

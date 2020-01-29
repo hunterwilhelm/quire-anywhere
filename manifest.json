@@ -1,7 +1,0 @@
-{
-  "name": "Quire Anywhere",
-  "version": "1.0",
-  "description": "A Good Extension For Quire!",
-  "permissions": ["contextMenus"],
-  "manifest_version": 2
-}
