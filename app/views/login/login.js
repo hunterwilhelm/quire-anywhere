@@ -1,12 +1,10 @@
-import { AppConfig } from "../../modules/app.config.js";
-import { AppUtils } from "../../modules/app.utils.js";
-
-let authUrl = AppConfig.authorizationUrl
-  .replace("{client-id}", AppConfig.clientId)
-  .replace("{redirect-uri}", AppConfig.redirectURI)
-  .replace("{state}", AppUtils.getRandomString());
+import { LoginService } from "./login.service.js";
 
 document.querySelector("#login-url").innerHTML = "Click to log in";
-document.querySelector("#login-url").onclick = function () {
-  window.open(authUrl);
-}
+document.querySelector("#login-url").addEventListener("click", function () {
+  var loginService = new LoginService();
+  window.open(loginService.authUrl);
+  loginService.awaitResponse(function(response) {
+    console.log(response);
+  });
+});
