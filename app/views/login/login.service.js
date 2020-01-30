@@ -28,7 +28,7 @@ export class LoginService {
     }, 100, fireEventFunction, this);
   }
 
-  post$(loginService) { // cannot see 'this', so I named 'this'
+  post$(loginService) { // cannot see 'this', so I named 'this' to loginService
     var url = AppConfig.postUrl;
     var params = JSON.stringify({
       state: loginService.state
@@ -38,8 +38,14 @@ export class LoginService {
     xhr.send(params);
     xhr.onreadystatechange = function () { 
       if (xhr.readyState == 4 && xhr.status == 200) {
+        try {
           var json = JSON.parse(xhr.responseText);
           loginService.thenFunction(json);
+        } catch (error) {
+          loginService.thenFunction(AppConfig.jsonError);
+        }
+      } else {
+        loginService.thenFunction(AppConfig.jsonError);
       }
     }
   }

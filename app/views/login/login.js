@@ -5,6 +5,6 @@ document.querySelector("#login-url").addEventListener("click", function () {
   var loginService = new LoginService();
   window.open(loginService.authUrl);
   loginService.awaitResponse(function(response) {
-    console.log(response);
+    document.querySelector("#response").innerHTML = response.type;
   });
 });
