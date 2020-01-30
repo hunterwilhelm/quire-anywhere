@@ -3,31 +3,44 @@ import { AppUtils } from "../../modules/app.utils.js";
 
 export class LoginService {
   constructor() {
+    this.state = AppUtils.getRandomString();
     this.authUrl = AppConfig.authorizationUrl
-      .replace("{client-id}", AppConfig.clientId)
-      .replace("{redirect-uri}", AppConfig.redirectURI)
-      .replace("{state}", AppUtils.getRandomString());
+        .replace("{client-id}", AppConfig.clientId)
+        .replace("{redirect-uri}", AppConfig.redirectURI)
+        .replace("{state}", this.state);
     this.thenFunction = function() {};
   }
 
   awaitResponse(thenFunction) {
     console.log(this.authUrl);
     this.thenFunction = thenFunction;
-    this.waitUntilPageNotHidden(this.post, thenFunction);
+    this.waitUntilPageNotHidden(this.post$);
   }
 
-  waitUntilPageNotHidden(fireEventFunction, thenFunction) {
-    let handle = setInterval(function(fireEventFunction, thenFunction) {
+  waitUntilPageNotHidden(fireEventFunction) {
+    let handle = setInterval(function(fireEventFunction, loginService) {
       if (document.hidden) {
         console.log("waiting for user to return...")
       } else {
         clearInterval(handle);
-        setTimeout(fireEventFunction, 100, thenFunction);
+        setTimeout(fireEventFunction, 100, loginService);
       }
-    }, 100, fireEventFunction, thenFunction);
+    }, 100, fireEventFunction, this);
   }
 
-  post(thenFunction) {
-    thenFunction("the response JSON");
+  post$(loginService) { // cannot see 'this', so I named 'this'
+    var url = AppConfig.postUrl;
+    var params = JSON.stringify({
+      state: loginService.state
+    });
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.send(params);
+    xhr.onreadystatechange = function () { 
+      if (xhr.readyState == 4 && xhr.status == 200) {
+          var json = JSON.parse(xhr.responseText);
+          loginService.thenFunction(json);
+      }
+    }
   }
 }

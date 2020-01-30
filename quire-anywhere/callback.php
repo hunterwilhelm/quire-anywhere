@@ -1,12 +1,12 @@
 <?php
-function getLoginData() {
+function getLoginType($postData) {
   $type = "";
   if (isset($_GET["code"])) {
     $type = "success";
   } else if (isset($_GET["error"])) {
     closeSession();
     $type = "error";
-  } else if (isset($_POST["state"]) && sizeof($_GET) == 0) {
+  } else if (isset($postData["state"]) && sizeof($_GET) == 0) {
     $type = "auth";
   } else {
     $type = "unknown";
@@ -16,12 +16,11 @@ function getLoginData() {
 }
 
 function closeSession() {
-  // session_start();
-  // session_unset();
-  // session_destroy();
-  // session_write_close();
-  // setcookie(session_name(),'',0,'/');
-  // echo "hello";
+  session_start();
+  session_unset();
+  session_destroy();
+  session_write_close();
+  setcookie(session_name(),'',0,'/');
 }
 
 function storeDataInSession($type) {
@@ -37,20 +36,31 @@ function storeDataInSession($type) {
   $_SESSION["type"] = $type;
 }
 
-function authenticate() {
+function authenticate($postData) {
   session_start();
-  $state = $_GET['state'];
-  if (isset($_SESSION[$state])) {
+  $state = $postData['state'];
+  if (isset($_SESSION[$state]) && 
+      isset($_SESSION["type"]) && $_SESSION["type"] == "success") {
+    $_SESSION["type"] = "authenticated";
+    $sessionJson = json_encode($_SESSION);
+    closeSession();
     header('Content-Type: application/json');
-    $_SESSION["authenticated"] = $type;
-    echo json_encode($_SESSION);
+    echo $sessionJson;
+  } else if (isset($_SESSION["type"]) && $_SESSION["type"] == "error") {
+    $sessionJson = json_encode($_SESSION);
+    closeSession();
+    header('Content-Type: application/json');
+    echo $sessionJson;
+  } else {
+    header('HTTP/1.0 403 Forbidden');
   }
 }
 
 function main() {
-  $type = getLoginData();
+  $postData = json_decode(file_get_contents('php://input'), true);
+  $type = getLoginType($postData);
   if ($type == "auth") {
-    authenticate();
+    authenticate($postData);
   } else if ($type == "unknown") {
     header('HTTP/1.0 403 Forbidden');
   } else {
