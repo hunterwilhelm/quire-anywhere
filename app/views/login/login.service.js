@@ -11,10 +11,9 @@ export class LoginService {
     this.thenFunction = function() {};
   }
 
-  awaitResponse(thenFunction) {
-    console.log(this.authUrl);
+  awaitAccessRequestResponse(thenFunction) {
     this.thenFunction = thenFunction;
-    this.waitUntilPageNotHidden(this.post$);
+    this.waitUntilPageNotHidden(this.postState$);
   }
 
   waitUntilPageNotHidden(fireEventFunction) {
@@ -28,7 +27,7 @@ export class LoginService {
     }, 100, fireEventFunction, this);
   }
 
-  post$(loginService) { // cannot see 'this', so I named 'this' to loginService
+  postState$(loginService) { // cannot see 'this', so I named 'this' to loginService
     var url = AppConfig.postUrl;
     var params = JSON.stringify({
       state: loginService.state

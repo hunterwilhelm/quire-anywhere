@@ -5,7 +5,8 @@ export class AppConfig {
   static redirectURI = 'http://zicy.net/quire-anywhere/callback.php';
   static postUrl = 'http://zicy.net/quire-anywhere/callback.php';
 
-  static jsonError = {type: "JSONerror"};
+  static jsonError = {type: "json-error"};
+  static httpError = {type: "http-error"};
 
   static authorizationUrl = 'https://quire.io/oauth?client_id={client-id}&redirect_uri={redirect-uri}&state={state}';
   static tokenUrl = 'https://quire.io/oauth/token';

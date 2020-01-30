@@ -5,7 +5,7 @@ function getLoginType($postData) {
     $type = "success";
   } else if (isset($_GET["error"])) {
     closeSession();
-    $type = "error";
+    $type = "auth-error";
   } else if (isset($postData["state"]) && sizeof($_GET) == 0) {
     $type = "auth";
   } else {
@@ -41,12 +41,12 @@ function authenticate($postData) {
   $state = $postData['state'];
   if (isset($_SESSION[$state]) && 
       isset($_SESSION["type"]) && $_SESSION["type"] == "success") {
-    $_SESSION["type"] = "authenticated";
+    $_SESSION["type"] = "success";
     $sessionJson = json_encode($_SESSION);
     closeSession();
     header('Content-Type: application/json');
     echo $sessionJson;
-  } else if (isset($_SESSION["type"]) && $_SESSION["type"] == "error") {
+  } else if (isset($_SESSION["type"]) && $_SESSION["type"] == "auth-error") {
     $sessionJson = json_encode($_SESSION);
     closeSession();
     header('Content-Type: application/json');
