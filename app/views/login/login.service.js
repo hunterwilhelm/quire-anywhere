@@ -16,6 +16,10 @@ export class LoginService {
     this.waitUntilPageNotHidden(this.postState$);
   }
 
+  awaitAccessTokenResponse(code, thenFunction) {
+    this.postCode(code, thenFunction);
+  }
+
   waitUntilPageNotHidden(fireEventFunction) {
     let handle = setInterval(function(fireEventFunction, loginService) {
       if (document.hidden) {
@@ -45,6 +49,32 @@ export class LoginService {
         }
       } else {
         loginService.thenFunction(AppConfig.jsonError);
+      }
+    }
+  }
+
+  postCode(code, thenFunction) {
+    console.log("posting code...");
+    let url = AppConfig.tokenUrl;
+    let params = `grant_type=authorization_code&code=${code}&client_id=${AppConfig.clientId}&client_secret=${AppConfig.clientSecret}`;
+    this.post(url, params, thenFunction, thenFunction);
+  }
+
+  post(url, params, successFunction, errorFunction) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.send(params);
+    xhr.onreadystatechange = function () { 
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        try {
+          console.log(xhr.responseText);
+          var json = JSON.parse(xhr.responseText);
+          successFunction(json);
+        } catch (error) {
+          errorFunction(AppConfig.jsonError);
+        }
+      } else {
+        errorFunction(AppConfig.httpError);
       }
     }
   }
