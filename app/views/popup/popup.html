@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <title>Quire Anywhere Pop-up</title>
+    <script type="module" src="../../modules/app.config.js"></script>
+    <script type="module" src="../../modules/app.utils.js"></script>
     <link rel="stylesheet" href="popup.css"/>
   </head>
   <body>
-    <a target="_blank" rel="noopener noreferrer" id="url"></a>
+    <a target="_blank" rel="noopener noreferrer" id="login-url"></a>
+    <p id="response"></p>
+    <button id="get-token">Show Token</button>
     <p id="access-token"></p>
+    <button id="clear-storage">Clear Storage</button>
     <script type="module" src="popup.js"></script>
+    <script type="module" src="login.data.service.js"></script>
   </body>
 </html>

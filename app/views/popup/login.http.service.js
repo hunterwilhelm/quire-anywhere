@@ -10,30 +10,14 @@ export class LoginHttpService {
         .replace("{state}", this.state);
   }
 
-  awaitAccessRequestResponse(thenFunction) {
-    this.thenFunction = thenFunction;
-    this.waitUntilPageNotHidden(this.postState$);
-  }
-
-  waitUntilPageNotHidden(fireEventFunction) {
-    let handle = setInterval(function(fireEventFunction, loginService) {
-      if (document.hidden) {
-        console.log("waiting for user to return...")
-      } else {
-        clearInterval(handle);
-        setTimeout(fireEventFunction, 100, loginService);
-      }
-    }, 100, fireEventFunction, this);
-  }
-
-  postState$(loginService) { // cannot see 'this', so I named 'this' to loginService
+  static postState(state, thenFunction) { // cannot see 'this', so I named 'this' to loginService
     const url = AppConfig.postUrl;
     const formData = new FormData();
-    formData.append("state", loginService.state);
-    loginService.post(url, formData, loginService.thenFunction);
+    formData.append("state", state);
+    this.post(url, formData, thenFunction);
   }
 
-  post(url, formData, thenFunction) {
+  static post(url, formData, thenFunction) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
     xhr.send(formData);

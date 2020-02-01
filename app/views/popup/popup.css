@@ -2,3 +2,8 @@ body {
   width: 100px;
   height: 100px;
 }
+#login-url {
+  color: -webkit-link;
+  cursor: pointer;
+  text-decoration: underline;
+}
