@@ -1,7 +1,7 @@
 import { AppConfig } from "../../modules/app.config.js";
 import { AppUtils } from "../../modules/app.utils.js";
 
-export class LoginService {
+export class LoginHttpService {
   constructor() {
     this.state = AppUtils.getRandomString();
     this.authUrl = AppConfig.authorizationUrl
