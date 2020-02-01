@@ -10,10 +10,12 @@ export class TranslationService {
           "default": "this page"
         },
         "authentication-response": {
-          "auth-error": "You denied access, please sign in again",
+          "access-code.denied": "You denied access, please sign in again",
+          "token.success": "You have successfully logged in!",
+          "token.denied": "Something went wrong validating the response... try again?",
+
           "json-error": "Something went wrong reading the response... try again?",
           "http-error": "Something went wrong getting the response... try again?",
-          "success": "You have successfully given permission, logging in...",
           "default": "Unknown error... try again?"
         }
     };

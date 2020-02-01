@@ -1,52 +1,62 @@
 <?php
-function getLoginType($postData) {
-  $type = "";
+include('app.config.php');
+include("app.secret.php");
+include("status.keys.php");
+
+function getLoginType() {
   if (isset($_GET["code"])) {
-    $type = "success";
+    closeSession();
+    return StatusKeys::ACCESS_CODE_RECEIVED;
   } else if (isset($_GET["error"])) {
     closeSession();
-    $type = "auth-error";
-  } else if (isset($postData["state"]) && sizeof($_GET) == 0) {
-    $type = "auth";
+    return StatusKeys::ACCESS_CODE_DENIED;
+  } else if (isset($_POST["state"]) && sizeof($_GET) == 0) {
+    return StatusKeys::QUIRE_DATA_REQUESTED;
   } else {
-    $type = "unknown";
     closeSession();
+    return StatusKeys::UNKNOWN;
   }
-  return $type;
 }
 
 function closeSession() {
-  session_start();
-  session_unset();
-  session_destroy();
-  session_write_close();
-  setcookie(session_name(),'',0,'/');
-}
-
-function storeDataInSession($type) {
-  session_start();
-  foreach ($_GET as $tag => $value) {
-    if ($tag == "code") {
-      $state = $_GET['state'];
-      $_SESSION[$state] = $value;
-    } else if ($tag != "state") {
-      $_SESSION[$tag] = $value;
-    }
+  if(session_id() != '') {
+    startSession();
+    session_unset();
+    session_destroy();
+    session_write_close();
+    setcookie(session_name(), '', 0, '/');
   }
-  $_SESSION["type"] = $type;
 }
 
-function authenticate($postData) {
-  session_start();
-  $state = $postData['state'];
-  if (isset($_SESSION[$state]) && 
-      isset($_SESSION["type"]) && $_SESSION["type"] == "success") {
-    $_SESSION["type"] = "success";
-    $sessionJson = json_encode($_SESSION);
-    closeSession();
-    header('Content-Type: application/json');
-    echo $sessionJson;
-  } else if (isset($_SESSION["type"]) && $_SESSION["type"] == "auth-error") {
+function startSession() {
+  if(session_id() == ''){
+    session_start();
+  }
+}
+
+function storeQuireGetDataInSession($loginType) {
+  startSession();
+  foreach ($_GET as $tag => $value) {
+    $_SESSION[$tag] = $value;
+  }
+  $_SESSION['status'] = $loginType;
+  return $_SESSION;
+}
+
+function storeQuirePostDataInSession($loginType, $postData) {
+  startSession();
+  foreach ($postData as $tag => $value) {
+    $_SESSION[$tag] = $value;
+  }
+  $_SESSION['status'] = $loginType;
+}
+
+function serveQuireDataAsJson() {
+  startSession();
+  $state = $_POST['state'];
+  $validState = isset($_SESSION['state']) && $state === $_SESSION['state'];
+  if ($validState) {
+    unset($_SESSION['state']);
     $sessionJson = json_encode($_SESSION);
     closeSession();
     header('Content-Type: application/json');
@@ -54,19 +64,67 @@ function authenticate($postData) {
   } else {
     header('HTTP/1.0 403 Forbidden');
   }
+}
+
+function closeTheTab() {
+   echo "<script>setTimeout(function(){window.close()}, 0);</script>";
+}
+
+function getToken($session_data) {
+  $url = AppConfig::tokenUrl;
+  $string_data =
+      'code='. $session_data['code'] .
+      '&grant_type=authorization_code' .
+      '&client_id='.AppConfig::clientId .
+      '&client_secret='.AppSecret::clientSecret;
+
+  $resultJson = post($url, $string_data);
+  if ($resultJson !== FALSE) {
+    // var_dump($http_response_header);
+    if (isJson($resultJson)) {
+      $result = json_decode($resultJson, true);
+      $statusKey = StatusKeys::UNKNOWN;
+      if (isset($result['error'])) {
+        $statusKey = StatusKeys::TOKEN_DENIED;
+      } else if (isset($result['access_token'])) {
+        $statusKey = StatusKeys::TOKEN_SUCCESS;
+      }
+      storeQuirePostDataInSession($statusKey, $result);
+    }
+  }
+}
+
+function isJson($string) {
+  json_decode($string, true);
+  return (json_last_error() == JSON_ERROR_NONE);
+}
+
+function post($url, $string_data) {
+  $options = array(
+      'http' => array(
+          'method'  => 'POST',
+          'content' => $string_data,
+          'ignore_errors' => true,
+      )
+  );
+  $context  = stream_context_create($options);
+  return file_get_contents($url, false, $context);
 }
 
 function main() {
-  $postData = json_decode(file_get_contents('php://input'), true);
-  $type = getLoginType($postData);
-  if ($type == "auth") {
-    authenticate($postData);
-  } else if ($type == "unknown") {
+  $loginType = getLoginType();
+  if ($loginType == StatusKeys::QUIRE_DATA_REQUESTED) {
+    serveQuireDataAsJson();
+  } else if ($loginType == StatusKeys::ACCESS_CODE_RECEIVED) {
+    $session_data = storeQuireGetDataInSession($loginType);
+    getToken($session_data);
+    closeTheTab();
+  } else if ($loginType == StatusKeys::ACCESS_CODE_DENIED) {
+    storeQuireGetDataInSession($loginType);
+    closeTheTab();
+  } else if ($loginType == StatusKeys::UNKNOWN) {
+    // exceptions are caught here
     header('HTTP/1.0 403 Forbidden');
-  } else {
-    storeDataInSession($type);
-    echo "<script>window.close();</script>";
   }
 }
 main();
-?>

@@ -6,18 +6,13 @@ export class LoginService {
     this.state = AppUtils.getRandomString();
     this.authUrl = AppConfig.authorizationUrl
         .replace("{client-id}", AppConfig.clientId)
-        .replace("{redirect-uri}", AppConfig.redirectURI)
+        .replace("{redirect-uri}", AppConfig.redirectUri)
         .replace("{state}", this.state);
-    this.thenFunction = function() {};
   }
 
   awaitAccessRequestResponse(thenFunction) {
     this.thenFunction = thenFunction;
     this.waitUntilPageNotHidden(this.postState$);
-  }
-
-  awaitAccessTokenResponse(code, thenFunction) {
-    this.postCode(code, thenFunction);
   }
 
   waitUntilPageNotHidden(fireEventFunction) {
@@ -32,49 +27,27 @@ export class LoginService {
   }
 
   postState$(loginService) { // cannot see 'this', so I named 'this' to loginService
-    var url = AppConfig.postUrl;
-    var params = JSON.stringify({
-      state: loginService.state
-    });
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", url, true);
-    xhr.send(params);
-    xhr.onreadystatechange = function () { 
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        try {
-          var json = JSON.parse(xhr.responseText);
-          loginService.thenFunction(json);
-        } catch (error) {
-          loginService.thenFunction(AppConfig.jsonError);
-        }
-      } else {
-        loginService.thenFunction(AppConfig.jsonError);
-      }
-    }
+    const url = AppConfig.postUrl;
+    const formData = new FormData();
+    formData.append("state", loginService.state);
+    loginService.post(url, formData, loginService.thenFunction);
   }
 
-  postCode(code, thenFunction) {
-    console.log("posting code...");
-    let url = AppConfig.tokenUrl;
-    let params = `grant_type=authorization_code&code=${code}&client_id=${AppConfig.clientId}&client_secret=${AppConfig.clientSecret}`;
-    this.post(url, params, thenFunction, thenFunction);
-  }
-
-  post(url, params, successFunction, errorFunction) {
-    var xhr = new XMLHttpRequest();
+  post(url, formData, thenFunction) {
+    const xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
-    xhr.send(params);
-    xhr.onreadystatechange = function () { 
-      if (xhr.readyState == 4 && xhr.status == 200) {
+    xhr.send(formData);
+    xhr.onload = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
         try {
           console.log(xhr.responseText);
-          var json = JSON.parse(xhr.responseText);
-          successFunction(json);
+          const json = JSON.parse(xhr.responseText);
+          thenFunction(json);
         } catch (error) {
-          errorFunction(AppConfig.jsonError);
+          thenFunction(AppConfig.jsonError);
         }
       } else {
-        errorFunction(AppConfig.httpError);
+        thenFunction(AppConfig.httpError);
       }
     }
   }
