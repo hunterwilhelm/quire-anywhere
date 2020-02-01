@@ -40,7 +40,6 @@ export class LoginHttpService {
     xhr.onload = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         try {
-          console.log(xhr.responseText);
           const json = JSON.parse(xhr.responseText);
           thenFunction(json);
         } catch (error) {
