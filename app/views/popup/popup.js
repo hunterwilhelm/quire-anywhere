@@ -1,23 +1,12 @@
 import {StorageService} from "../../modules/storage.service.js";
-import {LoginDataService} from "./login.data.service.js";
-
-export class PopupHo {
-  static showLogin() {
-    document.querySelector("#login-url").innerHTML = "Click to log in";
-    document.querySelector("#login-url").addEventListener("click", function () {
-      // Ask a Quire User to Grant Access to Your Application
-      loginDataService.saveState(function() {
-        window.open(loginDataService.authUrl);
-      });
-    });
-  }
-}
-
+import {LoginDataService} from "../../modules/login.data.service.js";
+import {ApiDataService} from "../../modules/api.data.service.js";
 // try to load login data onload
 const loginDataService = new LoginDataService();
-loginDataService.isLoggedIn(function(result) {
-  if (!result.quire_logged_in) {
+loginDataService.isLoggedIn(function (loggedIn) {
+  if (!loggedIn) {
     loginDataService.attemptLogin();
+    console.log("logging in");
   } else {
     console.log("logged in");
   }
@@ -25,12 +14,14 @@ loginDataService.isLoggedIn(function(result) {
 
 
 document.querySelector('#get-token').addEventListener('click', function () {
-  StorageService.readLocal('quire_access_token', function(result) {
-    document.querySelector('#access-token').innerHTML = result.quire_access_token;
-  });
+  document.querySelector('#access-token').innerHTML = ApiDataService.getToken();
 });
 
 document.querySelector('#clear-storage').addEventListener('click', function () {
   StorageService.clearLocal();
+  StorageService.clearLocalStorage();
 });
 
+document.querySelector('#open-settings').addEventListener('click', function() {
+  window.open(chrome.runtime.getURL('/views/settings/settings.html'));
+});

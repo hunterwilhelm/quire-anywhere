@@ -1,20 +1,20 @@
 import {LoginHttpService} from "./login.http.service.js";
-import {TranslationService} from "../../modules/translation.service.js";
-import {TranslationConfig} from "../../modules/translation.config.js";
-import {AppStatusKeys} from "../../modules/app.status.keys.js";
-import {StorageService} from "../../modules/storage.service.js";
-import {PopupHo} from "./popup.js";
-export class LoginDataService {
-  _loginHttpService = new LoginHttpService();
+import {TranslationService} from "./translation.service.js";
+import {TranslationConfig} from "./translation.config.js";
+import {AppStatusKeys} from "./app.status.keys.js";
+import {StorageService} from "./storage.service.js";
+import {PopupHo} from "../views/popup/popup.ho.js";
 
+export class LoginDataService {
   constructor() {
+    this._loginHttpService = new LoginHttpService();
     this.authUrl = this._loginHttpService.authUrl;
   }
 
-  loadLoginData(result) {
-    if (result.quire_state !== undefined) {
-      console.log(result.quire_state);
-      LoginHttpService.postState(result.quire_state,function(response) {
+  loadLoginData(quire_state) {
+    if (quire_state !== undefined) {
+      console.log(quire_state);
+      LoginHttpService.postState(quire_state,function(response) {
         document.querySelector("#response").innerHTML =
             TranslationService.translateFromKey(TranslationConfig.AUTHENTICATION_RESPONSE, response.status);
         if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
@@ -44,8 +44,10 @@ export class LoginDataService {
     StorageService.saveLocal('quire_state', this._loginHttpService.state, thenFunction);
   }
 
-  isLoggedIn(thenFunction) {
-    StorageService.readLocal('quire_logged_in', thenFunction);
+  isLoggedIn(loggedInFunction) {
+    StorageService.readLocal('quire_logged_in', function(quire_logged_in) {
+      loggedInFunction(quire_logged_in);
+    });
   }
 }
 

@@ -1,20 +1,21 @@
-import { AppConfig } from "../../modules/app.config.js";
-import { AppUtils } from "../../modules/app.utils.js";
+import { AppConfig } from "./app.config.js";
+import { AppUtils } from "./app.utils.js";
+import {ApiConfig} from "./api.config.js";
 
 export class LoginHttpService {
   constructor() {
     this.state = AppUtils.getRandomString();
-    this.authUrl = AppConfig.authorizationUrl
+    this.authUrl = ApiConfig.authorizationUrl
         .replace("{client-id}", AppConfig.clientId)
         .replace("{redirect-uri}", AppConfig.redirectUri)
         .replace("{state}", this.state);
   }
 
-  static postState(state, thenFunction) { // cannot see 'this', so I named 'this' to loginService
+  static postState(state, responseFunction) { // cannot see 'this', so I named 'this' to loginService
     const url = AppConfig.postUrl;
     const formData = new FormData();
     formData.append("state", state);
-    this.post(url, formData, thenFunction);
+    this.post(url, formData, responseFunction);
   }
 
   static post(url, formData, thenFunction) {

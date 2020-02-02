@@ -6,17 +6,21 @@
 </head>
 <body>
 <h2>Settings | Quire Anywhere</h2>
-<form id="settings" onsubmit="return window.save()">
+<form id="settings">
   <div class="project-settings">
     <h4>Project Settings</h4>
     <p>
       <label><input type="radio" name="project" value="one-default" checked="checked">One Default Project:</label>
+    </p>
+    <p>
       <label>
-        <select name="project-name">
-          <option value="volvo">Volvo</option>
-          <option value="saab">Saab</option>
-          <option value="mercedes">Mercedes</option>
-          <option value="audi">Audi</option>
+        <select name="org-id" id="org-select">
+          <option disabled="disabled" selected="selected">Select Organization</option>
+        </select>
+      </label>
+      <label>
+        <select name="proj-id" id="proj-select">
+          <option id="proj-option-default" disabled="disabled" selected="selected">Select Project</option>
         </select>
       </label>
     </p>
@@ -25,8 +29,9 @@
       <label><input type="radio" name="project" value="choose-every-time">Choose Every Time (future)</label>
     <p>
   </div>
-  <p><button class="submit">Save</button></p>
 </form>
+<p><button id="submit">Save</button></p>
+<p><button id="load-orgs">load Organizations</button></p>
 <script type="module" src="settings.js"></script>
 </body>
 </html>
