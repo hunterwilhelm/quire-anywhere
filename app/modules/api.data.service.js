@@ -4,10 +4,22 @@ import {ApiHttpService} from "./api.http.service.js";
 import {Task} from "../models/task.model.js";
 
 export class ApiDataService {
-  static _accessToken = StorageService.readLocal('quire_access_token');
-  constructor() {
+  constructor() {}
+
+  // GET FROM STORAGE
+  static getToken() {
+    return StorageService.readLocal('quire_access_token')
   }
-  // GET
+  
+  static getDefaultProjectId() {
+    return StorageService.readLocal("default_proj_id");
+  }
+  
+  static getDefaultOrganizationId() {
+    return StorageService.readLocal("default_org_id");
+  }
+
+  // GET FROM QUIRE
   static getProjectsByOrganization(organizationId, projectsFunction) {
     // Currently broken, 404 error
     const url = ApiConfig.getProjectsByOrganizationUrl.replace("{organizationOid}", organizationId);
@@ -23,10 +35,6 @@ export class ApiDataService {
     });
   }
 
-  static getToken() {
-    return this._accessToken;
-  }
-
   static getAllProjects(projectsFunction) {
     const url = ApiConfig.getAllProjectsUrl;
     console.log(url);
@@ -34,7 +42,8 @@ export class ApiDataService {
       projectsFunction(response);
     });
   }
-  // POST
+
+  // POST TO QUIRE
   static postTaskIntoProject(task, project_id) {
     const url = ApiConfig.postNewTaskUrl.replace("{projectId}", project_id);
     ApiHttpService.postToQuire(url, this.getToken(), task.toJSON(),function(response) {
@@ -44,42 +53,42 @@ export class ApiDataService {
   // ADD (and then post)
   static addPageTask(info, tab) {
     console.log("Adding page to Quire...");
-    const proj_id = StorageService.readLocal("default_proj_id");
+    const proj_id = this.getDefaultProjectId();
     let task = new Task(tab.title, tab.url);
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log(`Page url: ${info.pageUrl}`);
     console.log(`Page title: ${tab.title}`);
     console.log(`Access token: ${this._accessToken}`);
-    console.log("org_id" + StorageService.readLocal("default_org_id"));
+    console.log("org_id" + this.getDefaultOrganizationId());
     console.log(`proj_id: ${proj_id}`);
   }
 
   static addSelectionTask(info, tab) {
     console.log("Adding selection to Quire...");
 
-    const proj_id = StorageService.readLocal("default_proj_id");
+    const proj_id = this.getDefaultProjectId();
     let task = new Task(info.selectionText, "From: " + tab.url);
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log("Text: " + info.selectionText);
     console.log("From: " + info.pageUrl);
     console.log(`Access token: ${this._accessToken}`);
-    console.log("org_id" + StorageService.readLocal("default_org_id"));
+    console.log("org_id" + this.getDefaultOrganizationId());
     console.log(`proj_id: ${proj_id}`);
   }
 
   static addLinkTask(info, tab) {
     console.log("Adding link to Quire...");
 
-    const proj_id = StorageService.readLocal("default_proj_id");
+    const proj_id = this.getDefaultProjectId();
     let task = new Task(info.linkUrl, "From: " + tab.url);
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log("Link: " + info.linkUrl);
     console.log("From: " + info.pageUrl);
     console.log(`Access token: ${this._accessToken}`);
-    console.log("org_id" + StorageService.readLocal("default_org_id"));
+    console.log("org_id" + this.getDefaultOrganizationId());
     console.log(`proj_id: ${proj_id}`);
   }
 }
