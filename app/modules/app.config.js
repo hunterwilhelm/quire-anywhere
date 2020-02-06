@@ -1,5 +1,5 @@
 export class AppConfig {
-  static clientId = ':888HSP1ENUG8Zm9PK9zOxyLnxfP';
+  static clientId = 'HSP1ENUG8Zm9PK9zOxyLnxfP';
 
   static redirectUri = 'http://zicy.net/quire-anywhere/callback.php';
   static postUrl = 'http://zicy.net/quire-anywhere/callback.php';

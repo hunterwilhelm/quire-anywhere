@@ -51,10 +51,13 @@ loginDataService.isLoggedIn(function (loggedIn) {
   }
 });
 
+const getTokenButton = document.querySelector('#get-token');
+if (getTokenButton) {
+  getTokenButton.addEventListener('click', function () {
+    document.querySelector('#access-token').innerHTML = ApiDataService.getToken();
+  });
+}
 
-document.querySelector('#get-token').addEventListener('click', function () {
-  document.querySelector('#access-token').innerHTML = ApiDataService.getToken();
-});
 
 document.querySelector('#logout-button').addEventListener('click', function () {
   StorageService.clearAllStorage();
