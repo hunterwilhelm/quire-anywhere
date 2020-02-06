@@ -1,9 +1,6 @@
 import {LoginHttpService} from "./login.http.service.js";
-import {TranslationService} from "./translation.service.js";
-import {TranslationConfig} from "./translation.config.js";
 import {AppStatusKeys} from "./app.status.keys.js";
 import {StorageService} from "./storage.service.js";
-import {PopupHo} from "../views/popup/popup.ho.js";
 
 export class LoginDataService {
   constructor() {
@@ -11,12 +8,11 @@ export class LoginDataService {
     this.authUrl = this._loginHttpService.authUrl;
   }
 
-  loadLoginData(quire_state) {
+  loadLoginData(quire_state, thenFunction) {
     if (quire_state !== undefined) {
       console.log(quire_state);
       LoginHttpService.postState(quire_state,function(response) {
-        document.querySelector("#response").innerHTML =
-            TranslationService.translateFromKey(TranslationConfig.AUTHENTICATION_RESPONSE, response.status);
+        thenFunction(response);
         if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
           StorageService.saveLocal(
               "quire_access_token",
@@ -27,17 +23,16 @@ export class LoginDataService {
           StorageService.saveLocal("quire_logged_in",true);
         } else {
           // not logged in
-          PopupHo.showLogin();
         }
       });
     } else {
       console.error("Failed to load quire state");
-      PopupHo.showLogin();
     }
   }
 
-  attemptLogin() {
-    StorageService.readLocal('quire_state', this.loadLoginData);
+  attemptLogin(thenFunction) {
+    const quireState = StorageService.readLocal('quire_state');
+    this.loadLoginData(quireState, thenFunction);
   }
 
   saveState(thenFunction) {

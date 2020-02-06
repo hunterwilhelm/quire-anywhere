@@ -46,8 +46,10 @@ export class ApiDataService {
   // POST TO QUIRE
   static postTaskIntoProject(task, project_id) {
     const url = ApiConfig.postNewTaskUrl.replace("{projectId}", project_id);
+    // const defaultOrgName = StorageService.readLocal('default_org_name');
+    const defaultProjName = StorageService.readLocal('default_proj_name');
     ApiHttpService.postToQuire(url, this.getToken(), task.toJSON(),function(response) {
-      alert("Your new task id is: " + response.id);
+      alert(`New task #${response.id} added to ${defaultProjName}`);
     });
   }
   // ADD (and then post)

@@ -56,4 +56,10 @@ export class StorageService {
   static clearLocalStorage() {
     localStorage.clear();
   }
+
+  static clearAllStorage() {
+    this.clearLocalStorage();
+    this.clearLocal();
+    this.clearLocalStorage();
+  }
 }

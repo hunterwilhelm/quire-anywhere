@@ -1,19 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Quire Anywhere Pop-up</title>
-    <script type="module" src="../../modules/app.config.js"></script>
-    <script type="module" src="../../modules/app.utils.js"></script>
-    <script type="module" src="popup.ho.js"></script>
-    <link rel="stylesheet" href="popup.css"/>
-  </head>
-  <body>
-    <a target="_blank" rel="noopener noreferrer" id="login-url"></a>
-    <p id="response"></p>
-    <button id="get-token">Show Token</button>
-    <p id="access-token"></p>
-    <button id="clear-storage">Clear Storage</button>
-    <button id="open-settings">Settings</button>
-    <script type="module" src="popup.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../libraries/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="../../libraries/jquery.min.js"></script>
+  <script src="../../libraries/bootstrap.min.js"></script>
+
+  <title>Quire Anywhere Pop-up</title>
+  <script type="module" src="../../modules/app.config.js"></script>
+  <script type="module" src="../../modules/app.utils.js"></script>
+  <link rel="stylesheet" href="popup.css"/>
+</head>
+<body class="login">
+<nav class="navbar navbar-light navbar-expand bg-light justify-content-md-center justify-content-start">
+  <a class="navbar-brand d-md-none d-inline" href="">Quire Anywhere</a>
+  <div class="navbar-collapse collapse justify-content-between align-items-center w-100" id="collapsingNavbar2">
+    <ul class="navbar-nav mx-auto text-md-center text-left">
+    </ul>
+    <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap">
+      <a id="open-settings" type="button" class="disabled"><li class="nav-item"><i class="fa fa-cog fa-2x"  aria-hidden="true" style="color: #AAA;"></i></li></a>
+    </ul>
+  </div>
+</nav>
+<div id="success-warn" class="alert alert-success alert-dismissible fade show m-3 d-none">
+  <span id="success-warn-body"></span>
+  <button type="button" class="close alert-close">&times;</button>
+</div>
+<div id="error-warn" class="alert alert-danger alert-dismissible fade show m-3 d-none">
+  <span id="error-warn-body"></span>
+  <button type="button" class="close alert-close">&times;</button>
+</div>
+<div id="warning-warn" class="alert alert-warning alert-dismissible fade show m-3 d-none">
+  <span id="warning-warn-body"></span>
+  <button type="button" class="close alert-close">&times;</button>
+</div>
+<div class="container h-100" id="login-container" >
+  <div class="row h-100 justify-content-center align-items-center">
+    <button id="login-button" class="btn btn-primary align-self-center" ><i class="fa fa-sign-in" aria-hidden="true"></i> Sign into Quire</button>
+  </div>
+</div>
+<div class="container d-none" id="logged-in-container">
+  <div id="table-container" class="d-none">
+    <div class="row">
+      <div class="col-6">
+        <h6 class="border-bottom p-2">Organization</h6>
+        <p id="default-org" class="pl-2"></p>
+      </div>
+      <div class="col-6">
+        <h6 class="border-bottom p-2">Project</h6>
+        <p id="default-proj" class="pl-2"></p>
+      </div>
+    </div>
+  </div>
+  <span id="access-token"></span>
+  <div class="row justify-content-center m-3">
+    <div class="text-center">
+      <button class="btn btn-outline-warning" id="get-token">Show Token</button>
+      <button class="btn btn-outline-dark" id="logout-button">Log Out</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="popup.js"></script>
+</body>
 </html>

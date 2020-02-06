@@ -1,5 +1,8 @@
 body {
-  width: 100px;
+  width: 400px;
+  height: 150px;
+}
+body.login {
   height: 100px;
 }
 #login-url {

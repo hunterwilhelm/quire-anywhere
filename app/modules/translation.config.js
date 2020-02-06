@@ -3,6 +3,7 @@ import {AppStatusKeys} from "./app.status.keys.js";
 export class TranslationConfig extends AppStatusKeys {
   static CONTEXT_MENU = "context-menu";
   static AUTHENTICATION_RESPONSE = "authentication-response";
+  static SETTINGS = "settings";
   static _translations = {
     [this.CONTEXT_MENU]: {
       "selection": "selected text",
@@ -21,6 +22,10 @@ export class TranslationConfig extends AppStatusKeys {
       [this.JSON_ERROR]: "Something went wrong reading the response... try again?",
       [this.HTTP_ERROR]: "Something went wrong getting the response... try again?",
       "default": "Unknown error... try again?"
+    },
+    [this.SETTINGS]: {
+      "default-project-missing": "Please choose your default project in the settings",
+      "not-signed-in": "Please sign in first to access settings",
     }
   };
 }
