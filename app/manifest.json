@@ -1,7 +1,7 @@
 {
   "name": "Quire Anywhere",
   "version": "0.1.1",
-  "version": "Beta 0.1.1",
+  "version_name": "Beta 0.1.1",
   "description": "A Good Extension For Quire!",
   "permissions": [
     "activeTab", 
