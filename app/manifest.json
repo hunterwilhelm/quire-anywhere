@@ -8,7 +8,10 @@
     "contextMenus",
     "storage",
     "declarativeContent",
-    "<all_urls>"
+    "https://quire.io/*",
+    "https://zicy.net/*",
+    "http://zicy.net/*",
+    "https://cdnjs.cloudflare.com/*"
   ],
   "background": {
     "page": "background.html"

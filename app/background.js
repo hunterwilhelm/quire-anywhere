@@ -27,7 +27,18 @@ function onClickHandler(info, tab) {
   const loginDataService = new LoginDataService();
   loginDataService.isLoggedIn(function(loggedIn) {
     if (!loggedIn) {
-      alert("Please log in first");
+      const state = StorageService.readLocal("quire_state");
+      if (state) {
+        alert("Please finish logging in by clicking on the chrome extension again");
+      } else {
+        alert("Please log in first");
+      }
+      return;
+    }
+    const org = StorageService.readLocal("default_org_id");
+    const proj =  StorageService.readLocal("default_proj_id");
+    if (!(org && proj)) {
+      alert("Please go to settings to set your default project first");
       return;
     }
     console.log("-------------INFO----------------");
