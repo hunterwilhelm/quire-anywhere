@@ -42,21 +42,15 @@
           <label class="custom-control-label" for="default-project-one-default">One Default Project</label>
         </div>
         <label>
-          <select name="org-index" id="org-select" class="custom-select custom-select-sm">
-            <option disabled="disabled" selected="selected">Select Organization</option>
-          </select>
-        </label>
-        <label>
-          <select name="proj-index" id="proj-select"  class="custom-select custom-select-sm">
-            <option id="proj-option-default" disabled="disabled" selected="selected">Select Project</option>
+          <select name="org-id/proj-id" id="proj-select"  class="custom-select custom-select-sm">
+            <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
           </select>
         </label>
         <div class="alert alert-info small w-75" role="alert">
           All tasks will be sent to this project
         </div>
       </div>
-      <!--
-      <div class="col-sm-5 border-left">
+      <div class="col-sm-5 border-left d-none">
         <div class="custom-control custom-radio m-2">
           <input type="radio" class="custom-control-input" id="default-project-choose-every-time" name="project" value="one-default">
           <label class="custom-control-label" for="default-project-choose-every-time">Choose Every Time</label>
@@ -65,7 +59,6 @@
           To be added in the future
         </div>
       </div>
-      -->
     </div>
   </form>
   <br>

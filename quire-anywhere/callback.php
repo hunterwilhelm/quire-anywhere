@@ -6,7 +6,11 @@ include("status.keys.php");
 function getLoginType() {
   if (isset($_GET["code"])) {
     closeSession();
-    return StatusKeys::ACCESS_CODE_RECEIVED;
+    if (isset($_GET["state"])) {
+      return StatusKeys::ACCESS_CODE_RECEIVED;
+    } else {
+      return StatusKeys::REDIRECT_INSTALL_EXTENSION;
+    }
   } else if (isset($_GET["error"])) {
     closeSession();
     return StatusKeys::ACCESS_CODE_DENIED;
@@ -122,6 +126,8 @@ function main() {
   } else if ($loginType == StatusKeys::ACCESS_CODE_DENIED) {
     storeQuireGetDataInSession($loginType);
     closeTheTab();
+  } else if ($loginType == StatusKeys::REDIRECT_INSTALL_EXTENSION) {
+    header('Location: http://zicy.net/quire-anywhere');
   } else if ($loginType == StatusKeys::UNKNOWN) {
     // exceptions are caught here
     header('HTTP/1.0 403 Forbidden');

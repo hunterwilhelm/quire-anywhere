@@ -10,7 +10,11 @@ export class ApiHttpService {
       if (xhr.readyState === 4 && xhr.status === 200) {
         try {
           const responseObject = JSON.parse(xhr.responseText);
-          responseFunction(responseObject);
+          try {
+            responseFunction(responseObject);
+          } catch (e) {
+            console.log(e);
+          }
         } catch (error) {
           responseFunction({response:AppStatusKeys.JSON_ERROR});
         }

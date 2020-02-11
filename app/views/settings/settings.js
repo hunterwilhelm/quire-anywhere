@@ -1,28 +1,29 @@
 import {ApiDataService} from "../../modules/api.data.service.js";
 import {StorageService} from "../../modules/storage.service.js";
 
-let allProjects;
-let allOrgs;
-let currentOrgIndex;
-let projectElems = [];
-const orgSelect = $('#org-select');
+let allProjects = {};
+let allOrgs = {};
 
 $('#submit').on('click', function () {
   const serializedArray = $('#settings-form').serializeArray();
+  console.log(serializedArray);
   // compile into one object
-  const formData = [];
+  let formData = [];
   for (const i in serializedArray) {
     formData[serializedArray[i].name] = serializedArray[i].value;
   }
-  if (!formData["org-index"] || !formData["proj-index"]) {
+  if (!formData["org-id/proj-id"]) {
     alert("Please choose project");
   } else {
-    const projIndex = formData['proj-index'];
-    const orgIndex = formData['org-index'];
-    StorageService.saveLocal("default_proj_id", allProjects[projIndex].oid);
-    StorageService.saveLocal("default_proj_name", allProjects[projIndex].name);
-    StorageService.saveLocal("default_org_id", allOrgs[orgIndex].oid);
-    StorageService.saveLocal("default_org_name", allOrgs[orgIndex].name);
+    const orgIdProjId = formData['org-id/proj-id'].split('/');
+    const orgId = orgIdProjId[0];
+    const projId = orgIdProjId[1];
+    const orgName = allOrgs[orgId].name;
+    const projName = allProjects[projId].name;
+    StorageService.saveLocal("default_proj_id", projId);
+    StorageService.saveLocal("default_proj_name", projName);
+    StorageService.saveLocal("default_org_id", orgId);
+    StorageService.saveLocal("default_org_name", orgName);
     alert("Saved!");
   }
 
@@ -30,49 +31,33 @@ $('#submit').on('click', function () {
 
 // load organizations
 ApiDataService.getAllOrganizations(function(orgs) {
-  console.log(orgs);
-  allOrgs = orgs;
-  const orgSelect = document.querySelector("#org-select");
-  for (const i in orgs) {
-    const option = document.createElement("option");
-    option.text = orgs[i].name;
-    option.value = i;
-    orgSelect.add(option);
+  for (let i in orgs) {
+    allOrgs[orgs[i].oid] = orgs[i];
   }
+  console.log(allOrgs, orgs);
 });
 
 // load projects
 ApiDataService.getAllProjects(function(projects) {
-  console.log(projects);
-  allProjects = projects;
-  const projSelect = document.querySelector("#proj-select");
+  for (let i in projects) {
+    allProjects[projects[i].oid] = projects[i];
+  }
+  console.log(allProjects, projects);
+  const projSelect = $("#proj-select");
   for (const i in projects) {
     const option = document.createElement("option");
-    option.text = projects[i].name;
-    option.value = i;
-    option.parentOid = projects[i].organization;
-    option.style.display = "none";
-    projSelect.add(option);
-    projectElems.push(option);
+    const org = allOrgs[projects[i].organization];
+    const orgId = org.oid;
+    const orgName = org.name;
+    const projId = projects[i].oid;
+    const projName = projects[i].name;
+    option.text = `${orgName} - ${projName}`;
+    option.value = `${orgId}/${projId}`;
+    projSelect.append(option);
   }
-});
-
-orgSelect.on('change', function () {
-  const orgSelectElemDOM = orgSelect.get(0);
-  const orgElem = orgSelectElemDOM.options[orgSelectElemDOM.selectedIndex];
-  currentOrgIndex = orgElem.value;
-
-  // show projects under this org
-  for (const i in projectElems) {
-    const project = projectElems[i];
-    if (project.parentOid === allOrgs[currentOrgIndex].oid) {
-      project.style.display = "";
-    } else {
-      project.style.display = "none";
-      if (project.selected) {
-        document.querySelector("#proj-select").selectedIndex = 0;
-      }
-    }
-  }
+  projSelect.html(projSelect.find('option').sort(function(x, y) {
+    if ($(x).disabled) return -1;
+    return $(x).text() > $(y).text() ? 1 : -1;
+  }));
 });
 

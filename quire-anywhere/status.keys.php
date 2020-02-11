@@ -1,6 +1,7 @@
 <?php
 class StatusKeys {
   const UNKNOWN = 'unknown';
+  const REDIRECT_INSTALL_EXTENSION = 'redirect.install-extension';
   const ACCESS_CODE_RECEIVED = 'access-code.received';
   const ACCESS_CODE_DENIED = 'access-code.denied';
   const QUIRE_DATA_REQUESTED = 'token.requested';
