@@ -1,7 +1,7 @@
 {
   "name": "Quire Anywhere",
-  "version": "0.1.4",
-  "version_name": "Beta 0.1.4",
+  "version": "0.1.5",
+  "version_name": "Beta 0.1.5",
   "description": "The Best Chrome Extension For Quire!",
   "permissions": [
     "contextMenus",
