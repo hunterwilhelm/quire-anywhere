@@ -18,12 +18,14 @@ $('#submit').on('click', function () {
     const orgIdProjId = formData['org-id/proj-id'].split('/');
     const orgId = orgIdProjId[0];
     const projId = orgIdProjId[1];
-    const orgName = allOrgs[orgId].name;
+    const orgName = allOrgs[orgId] ? allOrgs[orgId].name : null;
     const projName = allProjects[projId].name;
     StorageService.saveLocal("default_proj_id", projId);
     StorageService.saveLocal("default_proj_name", projName);
     StorageService.saveLocal("default_org_id", orgId);
-    StorageService.saveLocal("default_org_name", orgName);
+    if (orgName) {
+      StorageService.saveLocal("default_org_name", orgName);
+    }
     alert("Saved!");
   }
 
@@ -47,13 +49,22 @@ ApiDataService.getAllProjects(function(projects) {
   for (const i in projects) {
     const option = document.createElement("option");
     const org = allOrgs[projects[i].organization];
-    const orgId = org.oid;
-    const orgName = org.name;
     const projId = projects[i].oid;
     const projName = projects[i].name;
-    option.text = `${orgName} - ${projName}`;
-    option.value = `${orgId}/${projId}`;
-    projSelect.append(option);
+    if (org) {
+      const orgId = org.oid;
+      const orgName = org.name;
+      option.text = `${orgName} - ${projName}`;
+      option.value = `${orgId}/${projId}`;
+      projSelect.append(option);
+    } else if (projId && projName) {
+      const orgId = projects[i].organization;
+      option.text = `${projName}`;
+      option.value = `${orgId}/${projId}`;
+      projSelect.append(option);
+    } else {
+      alert("Could not load any projects, please sign in!");
+    }
   }
   projSelect.html(projSelect.find('option').sort(function(x, y) {
     if ($(x).disabled) return -1;
