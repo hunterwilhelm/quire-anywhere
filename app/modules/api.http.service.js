@@ -18,6 +18,8 @@ export class ApiHttpService {
         } catch (error) {
           responseFunction({response:AppStatusKeys.JSON_ERROR});
         }
+      } else if (xhr.status === 429) {
+        responseFunction({response:AppStatusKeys.TOO_MANY_REQUESTS});
       } else {
         responseFunction({response:AppStatusKeys.HTTP_ERROR});
       }

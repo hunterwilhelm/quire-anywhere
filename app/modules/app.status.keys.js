@@ -4,4 +4,5 @@ export class AppStatusKeys {
     static TOKEN_DENIED = "token.denied";
     static JSON_ERROR = "json-error";
     static HTTP_ERROR = "http-error";
+    static TOO_MANY_REQUESTS = "too-many-requests";
 }

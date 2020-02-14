@@ -21,6 +21,7 @@ export class TranslationConfig extends AppStatusKeys {
 
       [this.JSON_ERROR]: "Something went wrong reading the response... try again?",
       [this.HTTP_ERROR]: "Something went wrong getting the response... try again?",
+      [this.TOO_MANY_REQUESTS]: "You have exceeded the number of tasks that can be added today, try again tomorrow",
       "default": "Unknown error... try again?"
     },
     [this.SETTINGS]: {
