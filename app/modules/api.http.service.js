@@ -27,10 +27,10 @@ export class ApiHttpService {
     xhr.send();
   }
 
-  static postToQuire(url, token, json, responseFunction) {
+  static postToQuire(url, token, grant_type, json, responseFunction) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
-    xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.setRequestHeader("Authorization", `${grant_type} ${token}`);
     xhr.send(json);
     xhr.onload = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {

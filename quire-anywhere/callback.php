@@ -14,8 +14,10 @@ function getLoginType() {
   } else if (isset($_GET["error"])) {
     closeSession();
     return StatusKeys::ACCESS_CODE_DENIED;
-  } else if (isset($_POST["state"]) && sizeof($_GET) == 0) {
+  } else if (isset($_POST["state"]) && sizeof($_GET) == 0 && count($_POST) == 1) {
     return StatusKeys::QUIRE_DATA_REQUESTED;
+  } else if (sizeof($_GET) == 0 && isset($_POST["grant_type"]) && isset($_POST["refresh_token"])) {
+    return StatusKeys::REFRESH_REQUESTED;
   } else {
     closeSession();
     return StatusKeys::UNKNOWN;
@@ -98,6 +100,30 @@ function getToken($session_data) {
   }
 }
 
+function refreshToken() {
+  $url = AppConfig::tokenUrl;
+  $string_data =
+      'refresh_token='. $_POST['refresh_token'] .
+      '&grant_type=refresh_token' .
+      '&client_id='.AppConfig::clientId .
+      '&client_secret='.AppSecret::clientSecret;
+
+  $resultJson = post($url, $string_data);
+  if (isJson($resultJson)) {
+    $result = json_decode($resultJson, true);
+    $statusKey = StatusKeys::UNKNOWN;
+    if (isset($result['error'])) {
+      $statusKey = StatusKeys::TOKEN_DENIED;
+    } else if (isset($result['access_token'])) {
+      $statusKey = StatusKeys::TOKEN_SUCCESS;
+    }
+    $result['status'] = $statusKey;
+    $finalJson = json_encode($result);
+    header('Content-Type: application/json');
+    echo $finalJson;
+  }
+}
+
 function isJson($string) {
   json_decode($string, true);
   return (json_last_error() == JSON_ERROR_NONE);
@@ -117,20 +143,30 @@ function post($url, $string_data) {
 
 function main() {
   $loginType = getLoginType();
-  if ($loginType == StatusKeys::QUIRE_DATA_REQUESTED) {
-    serveQuireDataAsJson();
-  } else if ($loginType == StatusKeys::ACCESS_CODE_RECEIVED) {
-    $session_data = storeQuireGetDataInSession($loginType);
-    getToken($session_data);
-    closeTheTab();
-  } else if ($loginType == StatusKeys::ACCESS_CODE_DENIED) {
-    storeQuireGetDataInSession($loginType);
-    closeTheTab();
-  } else if ($loginType == StatusKeys::REDIRECT_INSTALL_EXTENSION) {
-    header('Location: http://zicy.net/quire-anywhere');
-  } else if ($loginType == StatusKeys::UNKNOWN) {
+  switch ($loginType) {
+    case StatusKeys::QUIRE_DATA_REQUESTED:
+      serveQuireDataAsJson();
+      break;
+    case StatusKeys::REFRESH_REQUESTED:
+      refreshToken();
+      break;
+    case StatusKeys::ACCESS_CODE_RECEIVED:
+      $session_data = storeQuireGetDataInSession($loginType);
+      getToken($session_data);
+      closeTheTab();
+      break;
+    case StatusKeys::ACCESS_CODE_DENIED:
+      storeQuireGetDataInSession($loginType);
+      closeTheTab();
+      break;
+    case StatusKeys::REDIRECT_INSTALL_EXTENSION:
+      header('Location: http://zicy.net/quire-anywhere');
+      break;
     // exceptions are caught here
-    header('HTTP/1.0 403 Forbidden');
+    case StatusKeys::UNKNOWN:
+    default:
+      header('HTTP/1.0 403 Forbidden');
+      break;
   }
 }
 main();

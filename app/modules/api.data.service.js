@@ -48,7 +48,7 @@ export class ApiDataService {
     const url = ApiConfig.postNewTaskUrl.replace("{projectId}", project_id);
     // const defaultOrgName = StorageService.readLocal('default_org_name');
     const defaultProjName = StorageService.readLocal('default_proj_name');
-    ApiHttpService.postToQuire(url, this.getToken(), task.toJSON(),function(response) {
+    ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(response) {
       alert(`New task #${response.id} added to ${defaultProjName}`);
     });
   }
@@ -92,5 +92,16 @@ export class ApiDataService {
     console.log(`Access token: ${this._accessToken}`);
     console.log("org_id" + this.getDefaultOrganizationId());
     console.log(`proj_id: ${proj_id}`);
+  }
+
+  static getExpireInAsDate(expires_in) {
+    if (Number.isInteger(expires_in)) {
+      var dt = new Date();
+      dt.setSeconds( dt.getSeconds() + expires_in);
+      return dt;
+    } else {
+      console.throw(`Expected expires_in ${expires_in} to be an Integer`);
+      return null;
+    }
   }
 }

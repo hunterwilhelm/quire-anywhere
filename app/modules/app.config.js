@@ -7,6 +7,5 @@ export class AppConfig {
   static jsonError = {status: "json-error"};
   static httpError = {status: "http-error"};
 
-  static authorizationUrl = 'https://quire.io/oauth?client_id={client-id}&redirect_uri={redirect-uri}&state={state}';
-  static apiUrl = 'https://quire.io/api';
+  static quireAppSettingsUrl = 'https://quire.io/r/setting?tab=app';
 }

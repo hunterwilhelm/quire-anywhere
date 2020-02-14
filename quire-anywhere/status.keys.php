@@ -7,5 +7,6 @@ class StatusKeys {
   const QUIRE_DATA_REQUESTED = 'token.requested';
   const TOKEN_SUCCESS = 'token.success';
   const TOKEN_DENIED = 'token.denied';
+  const REFRESH_REQUESTED = 'token.refresh-requested';
 }
 ?>

@@ -18,6 +18,14 @@ export class LoginHttpService {
     this.post(url, formData, responseFunction);
   }
 
+  static postRefresh(state, refreshToken, responseFunction) { // cannot see 'this', so I named 'this' to loginService
+    const url = AppConfig.postUrl;
+    const formData = new FormData();
+    formData.append('refresh_token', refreshToken);
+    formData.append('grant_type', 'refresh_token');
+    this.post(url, formData, responseFunction);
+  }
+
   static post(url, formData, thenFunction) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);

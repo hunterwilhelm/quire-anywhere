@@ -4,6 +4,7 @@ import {ApiDataService} from "../../modules/api.data.service.js";
 import {TranslationService} from "../../modules/translation.service.js";
 import {TranslationConfig} from "../../modules/translation.config.js";
 import {AppStatusKeys} from "../../modules/app.status.keys.js";
+import {AppConfig} from "../../modules/app.config.js";
 
 function showPopulateDefaultTable() {
   const orgName = StorageService.readLocal('default_org_name');
@@ -63,7 +64,7 @@ document.querySelector('#logout-button').addEventListener('click', function () {
   StorageService.clearAllStorage();
   // wait for storage to clear
   setTimeout(function() {
-    window.close();
+    window.open(AppConfig.quireAppSettingsUrl);
   }, 300)
 });
 const settingsButton = $('#open-settings');
