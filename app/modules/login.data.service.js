@@ -62,7 +62,9 @@ export class LoginDataService {
     const quire_logged_in = StorageService.readLocal('quire_logged_in');
     if (quire_logged_in) {
       const quire_expires_in_date = StorageService.readLocal('quire_expires_in_date');
-      if (quire_expires_in_date && (new Date(quire_expires_in_date)) <= (new Date())) {
+      if (quire_expires_in_date
+          && (new Date(quire_expires_in_date)) <= (new Date())
+          || quire_expires_in_date.includes("[object Object]")) {
         // access token expired
         this.attemptRefreshToken(loggedInFunction);
       } else {
