@@ -94,11 +94,11 @@ export class ApiDataService {
     console.log(`proj_id: ${proj_id}`);
   }
 
-  static getExpireInAsDate(expires_in) {
+  static getExpireInAsDateString(expires_in) {
     if (Number.isInteger(expires_in)) {
       var dt = new Date();
       dt.setSeconds( dt.getSeconds() + expires_in);
-      return dt;
+      return dt.toString();
     } else {
       console.throw(`Expected expires_in ${expires_in} to be an Integer`);
       return null;

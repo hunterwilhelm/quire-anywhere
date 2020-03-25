@@ -1,8 +1,7 @@
-import {TranslationConfig} from "./modules/translation.config.js";
-import {TranslationService} from "./modules/translation.service.js";
 import {ApiDataService} from "./modules/api.data.service.js";
 import {LoginDataService} from "./modules/login.data.service.js";
 import {StorageService} from "./modules/storage.service.js";
+import {ChromeService} from "./modules/chrome.service.js";
 
 
 StorageService.readAllLocal(function(localArray) {
@@ -64,18 +63,7 @@ function onInstalledHandler() {
     console.log(">> Quire anywhere extension installed correctly!");
   });
   console.log(">> Setting up context menu");
-  // Create one test item for each context type.
-  // const contexts = ["page", "selection", "link", "editable", "image", "video", "audio"];
-  const contexts = ["page", "selection", "link"];
-  for (let i = 0; i < contexts.length; i++) {
-    const context = contexts[i];
-    const title = "Add " + TranslationService.translateFromKey(TranslationConfig.CONTEXT_MENU, context) + " to Quire";
-    const id = chrome.contextMenus.create({
-      "title": title, "contexts": [context],
-      "id": "context" + context
-    });
-    console.log("Adding " + TranslationService.translateFromKey(TranslationConfig.CONTEXT_MENU, context) + "-" + id + " to Quire...");
-  }
+  ChromeService.registerContextMenuItems();
 }
 
 chrome.contextMenus.onClicked.addListener(onClickHandler);

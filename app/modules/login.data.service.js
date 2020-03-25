@@ -22,7 +22,7 @@ export class LoginDataService {
       StorageService.saveLocal("quire_expires_in", response.expires_in, function(){
         console.log("successfully saved quire_expires_in");
       });
-      StorageService.saveLocal("quire_expires_in_date", ApiDataService.getExpireInAsDate(response.expires_in), function(){
+      StorageService.saveLocal("quire_expires_in_date", ApiDataService.getExpireInAsDateString(response.expires_in), function(){
         console.log("successfully saved quire_expires_in");
       });
       StorageService.saveLocal("quire_logged_in",true);
@@ -63,9 +63,9 @@ export class LoginDataService {
     if (quire_logged_in) {
       const quire_expires_in_date = StorageService.readLocal('quire_expires_in_date');
       if (quire_expires_in_date
-          && (new Date(quire_expires_in_date)) <= (new Date())
-          || quire_expires_in_date.includes("[object Object]")) {
+          && (new Date(quire_expires_in_date)) <= (new Date())) {
         // access token expired
+        console.log(quire_expires_in_date);
         this.attemptRefreshToken(loggedInFunction);
       } else {
         loggedInFunction(quire_logged_in);

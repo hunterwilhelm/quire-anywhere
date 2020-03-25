@@ -5,6 +5,7 @@ import {TranslationService} from "../../modules/translation.service.js";
 import {TranslationConfig} from "../../modules/translation.config.js";
 import {AppStatusKeys} from "../../modules/app.status.keys.js";
 import {AppConfig} from "../../modules/app.config.js";
+import {ChromeService} from "../../modules/chrome.service.js";
 
 function showPopulateDefaultTable() {
   const orgName = StorageService.readLocal('default_org_name');
@@ -88,3 +89,6 @@ document.querySelector("#login-button").addEventListener("click", function () {
 $(document).on('click', '.alert-close', function() {
   $(this).parent().addClass('d-none');
 });
+
+// register Context Menu again
+ChromeService.registerContextMenuItems();
