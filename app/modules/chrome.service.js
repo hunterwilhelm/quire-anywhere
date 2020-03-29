@@ -4,6 +4,8 @@ import {TranslationConfig} from "./translation.config.js";
 export class ChromeService {
 
     static registerContextMenuItems() {
+        console.log(">> Registering context menu items...");
+
         // clear all context menu items so that there are no id conflicts
         chrome.contextMenus.removeAll(this._createContextMenuItemsCallback)
     }

@@ -6,10 +6,11 @@ import {TranslationConfig} from "../../modules/translation.config.js";
 import {AppStatusKeys} from "../../modules/app.status.keys.js";
 import {AppConfig} from "../../modules/app.config.js";
 import {ChromeService} from "../../modules/chrome.service.js";
+import {StorageConstants} from "../../modules/storage.constants.js";
 
 function showPopulateDefaultTable() {
-  const orgName = StorageService.readLocal('default_org_name');
-  const projName = StorageService.readLocal('default_proj_name');
+  const orgName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME);
+  const projName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME);
   if (orgName && projName) {
     $('#default-org').html(orgName);
     $('#default-proj').html(projName);

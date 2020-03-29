@@ -2,21 +2,22 @@ import {StorageService} from "./storage.service.js";
 import {ApiConfig} from "./api.config.js";
 import {ApiHttpService} from "./api.http.service.js";
 import {Task} from "../models/task.model.js";
+import {StorageConstants} from "./storage.constants.js";
 
 export class ApiDataService {
   constructor() {}
 
   // GET FROM STORAGE
   static getToken() {
-    return StorageService.readLocal('quire_access_token')
+    return StorageService.readLocal(StorageConstants.QUIRE.ACCESS_TOKEN)
   }
   
   static getDefaultProjectId() {
-    return StorageService.readLocal("default_proj_id");
+    return StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
   }
   
   static getDefaultOrganizationId() {
-    return StorageService.readLocal("default_org_id");
+    return StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
   }
 
   // GET FROM QUIRE
@@ -47,7 +48,7 @@ export class ApiDataService {
   static postTaskIntoProject(task, project_id) {
     const url = ApiConfig.postNewTaskUrl.replace("{projectId}", project_id);
     // const defaultOrgName = StorageService.readLocal('default_org_name');
-    const defaultProjName = StorageService.readLocal('default_proj_name');
+    const defaultProjName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME);
     ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(response) {
       alert(`New task #${response.id} added to ${defaultProjName}`);
     });

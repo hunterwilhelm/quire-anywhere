@@ -2,6 +2,9 @@ import {ApiDataService} from "./modules/api.data.service.js";
 import {LoginDataService} from "./modules/login.data.service.js";
 import {StorageService} from "./modules/storage.service.js";
 import {ChromeService} from "./modules/chrome.service.js";
+import {AppStatusKeys} from "./modules/app.status.keys.js";
+import {StorageConstants} from "./modules/storage.constants.js";
+import {ChromeConstants} from "./modules/chrome.constants.js";
 
 
 StorageService.readAllLocal(function(localArray) {
@@ -26,7 +29,7 @@ function onClickHandler(info, tab) {
   const loginDataService = new LoginDataService();
   loginDataService.isLoggedIn(function(loggedIn) {
     if (!loggedIn) {
-      const state = StorageService.readLocal("quire_state");
+      const state = StorageService.readLocal(StorageConstants.QUIRE.STATE);
       if (state) {
         alert("Please finish logging in by clicking on the chrome extension again");
       } else {
@@ -34,8 +37,8 @@ function onClickHandler(info, tab) {
       }
       return;
     }
-    const org = StorageService.readLocal("default_org_id");
-    const proj =  StorageService.readLocal("default_proj_id");
+    const org = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
+    const proj =  StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
     if (!(org && proj)) {
       alert("Please go to settings to set your default project first");
       return;
@@ -44,13 +47,13 @@ function onClickHandler(info, tab) {
     console.log("info: ", info);
     console.log("tab: ", tab);
     switch (info.menuItemId) {
-      case "contextpage":
+      case ChromeConstants.CONTEXT_MENU_TYPES.PAGE:
         ApiDataService.addPageTask(info, tab);
         break;
-      case "contextselection":
+      case ChromeConstants.CONTEXT_MENU_TYPES.SELECTION:
         ApiDataService.addSelectionTask(info, tab);
         break;
-      case "contextlink":
+      case ChromeConstants.CONTEXT_MENU_TYPES.LINK:
         ApiDataService.addLinkTask(info, tab);
         break;
     }
@@ -58,13 +61,78 @@ function onClickHandler(info, tab) {
   });
 }
 
+const oneHourInMilliseconds = 60*60*1000;
 function onInstalledHandler() {
   StorageService.saveSync("color", '#57a73a', function() {
     console.log(">> Quire anywhere extension installed correctly!");
   });
-  console.log(">> Setting up context menu");
-  ChromeService.registerContextMenuItems();
+  setInterval(ChromeService.registerContextMenuItems, oneHourInMilliseconds);
+  window.addEventListener("storage", onStorageChangedController);
 }
+
+function onStorageChangedController(e) {
+  if (e.key) {
+    console.log(e);
+    const key = e.key.replace("local.", "");
+    switch (key) {
+      case StorageConstants.QUIRE.STATE: onQuireStateChangeHandler();
+        break;
+      case StorageConstants.QUIRE.EXPIRES_IN: onQuireExpiresInHandler();
+        break;
+    }
+  }
+}
+
+function onQuireStateChangeHandler() {
+  const attemptingLogin = StorageService.readLocal(StorageConstants.ATTEMPT_LOGIN.ATTEMPTING);
+  if (!(attemptingLogin === StorageConstants.TRUE)) {
+    console.log(">> Attempting login...");
+    let loginDataService = new LoginDataService();
+    const attemptingLoginId = setInterval(function () {
+          loginDataService.attemptLogin(responseHandler)
+    }, 1000);
+    StorageService.saveLocal(StorageConstants.QUIRE.LOGGED_IN, StorageConstants.TRUE);
+    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ATTEMPTING, StorageConstants.TRUE);
+    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ID, attemptingLoginId);
+    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.TRIES, 100);
+  }
+}
+
+function responseHandler(response) {
+  function onLoginHandler() {
+    console.log(">> SUCCESS: Logged in successfully!");
+
+    const attemptingLoginId = parseInt(StorageService.readLocal(StorageConstants.ATTEMPT_LOGIN.ID));
+    clearInterval(attemptingLoginId);
+
+    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ATTEMPTING, StorageConstants.FALSE);
+  }
+
+  function onHttpErrorHandler() {
+    let tries = parseInt(StorageService.readLocal(StorageConstants.ATTEMPT_LOGIN.TRIES)) - 1;
+
+    console.log(">> ERROR: Could not log in yet. tries left:", tries);
+    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.TRIES, tries);
+  }
+
+  if (StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN) === StorageConstants.TRUE) {
+    onLoginHandler();
+  } else if (response) {
+    if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
+      onLoginHandler();
+      onQuireExpiresInHandler();
+    } else if (response.status === AppStatusKeys.HTTP_ERROR) {
+      onHttpErrorHandler();
+    }
+  }
+}
+
+
+function onQuireExpiresInHandler() {
+  let quireExpiresIn = StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN);
+
+}
+
 
 chrome.contextMenus.onClicked.addListener(onClickHandler);
 chrome.runtime.onInstalled.addListener(onInstalledHandler);

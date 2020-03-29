@@ -1,5 +1,6 @@
 import {ApiDataService} from "../../modules/api.data.service.js";
 import {StorageService} from "../../modules/storage.service.js";
+import {StorageConstants} from "../../modules/storage.constants.js";
 
 let allProjects = {};
 let allOrgs = {};
@@ -20,11 +21,11 @@ $('#submit').on('click', function () {
     const projId = orgIdProjId[1];
     const orgName = allOrgs[orgId] ? allOrgs[orgId].name : null;
     const projName = allProjects[projId].name;
-    StorageService.saveLocal("default_proj_id", projId);
-    StorageService.saveLocal("default_proj_name", projName);
-    StorageService.saveLocal("default_org_id", orgId);
+    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID, projId);
+    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME, projName);
+    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID, orgId);
     if (orgName) {
-      StorageService.saveLocal("default_org_name", orgName);
+      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME, orgName);
     }
     alert("Saved!");
   }
