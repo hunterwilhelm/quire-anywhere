@@ -1,6 +1,7 @@
 import {ApiDataService} from "../../modules/api.data.service.js";
 import {StorageService} from "../../modules/storage.service.js";
 import {StorageConstants} from "../../modules/storage.constants.js";
+import {ChromeService} from "../../modules/chrome.service.js";
 
 let allProjects = {};
 let allOrgs = {};
@@ -115,4 +116,11 @@ function showSuccessAlert() {
   successAlert.fadeTo(2000, 500).slideUp(500, function() {
     successAlert.slideUp(500);
   });
+}
+
+ChromeService.registerStorageListener(quireLoggedInHandler, StorageConstants.QUIRE.LOGGED_IN);
+function quireLoggedInHandler(loggedIn) {
+  if (loggedIn === StorageConstants.FALSE) {
+    window.close();
+  }
 }

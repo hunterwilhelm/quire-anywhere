@@ -1,3 +1,5 @@
+import {StorageConstants} from "./storage.constants.js";
+
 export class StorageService {
   static saveSync(key, value, thenFunction) {
     if (value === undefined) {
@@ -68,8 +70,16 @@ export class StorageService {
   }
 
   static clearAllStorage() {
+    // fire off event before clearing data
+    this.saveLocal(StorageConstants.QUIRE.LOGGED_IN, StorageConstants.FALSE);
     this.clearLocalStorage();
     this.clearLocal();
     this.clearLocalStorage();
+  }
+
+  static getStorageKeyFromEventKey(key) {
+    if (key) {
+      return key.replace('local.', '').replace('sync.', '');
+    }
   }
 }

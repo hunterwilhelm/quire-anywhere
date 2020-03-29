@@ -1,6 +1,7 @@
 import {TranslationService} from "./translation.service.js";
 import {TranslationConfig} from "./translation.config.js";
 import {ChromeConstants} from "./chrome.constants.js";
+import {StorageService} from "./storage.service.js";
 
 export class ChromeService {
 
@@ -35,5 +36,16 @@ export class ChromeService {
             "contexts": [context],
             "id": context
         });
+    }
+
+    static registerStorageListener(newValueCallback, storageKey) {
+        if (newValueCallback instanceof Function && storageKey) {
+            window.addEventListener("storage", function (e) {
+                const key = StorageService.getStorageKeyFromEventKey(e.key);
+                if (key === storageKey) {
+                    newValueCallback(e.newValue);
+                }
+            });
+        }
     }
 }

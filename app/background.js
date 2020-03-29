@@ -68,21 +68,9 @@ function onInstalledHandler() {
   });
   ChromeService.registerContextMenuItems();
   setInterval(ChromeService.registerContextMenuItems, oneHourInMilliseconds);
-  window.addEventListener("storage", onStorageChangedController);
+  ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
+  ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
   quireRefreshTokenExpiredChecker();
-}
-
-function onStorageChangedController(e) {
-  if (e.key) {
-    console.log(e);
-    const key = e.key.replace("local.", "");
-    switch (key) {
-      case StorageConstants.QUIRE.STATE: onQuireStateChangeHandler();
-        break;
-      case StorageConstants.QUIRE.EXPIRES_IN: onQuireExpiresInHandler();
-        break;
-    }
-  }
 }
 
 function onQuireStateChangeHandler() {
