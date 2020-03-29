@@ -41,17 +41,26 @@
           <input type="radio" class="custom-control-input" id="default-project-one-default" name="project" value="one-default" checked>
           <label class="custom-control-label" for="default-project-one-default">One Default Project</label>
         </div>
-        <label class="w-100">
-          <select name="org-id/proj-id" id="proj-select"  class="custom-select custom-select-sm">
-            <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
-          </select>
-        </label>
-        <div class="alert-list">
-          <div id="project-description" class="alert alert-info small w-100 d-none" role="alert">
-            All tasks will be sent to this project
+        <div class="w-100" id="loading-container">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
           </div>
-          <div id="project-required" class="alert alert-danger small w-100 d-none" role="alert">
-            Please select a project in order to begin.
+        </div>
+        <div id="project-settings-options-container" class="d-none">
+          <label class="w-100">
+            <select name="org-id/proj-id" id="proj-select"  class="custom-select custom-select-sm">
+              <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
+            </select>
+          </label>
+          <div class="alert-list">
+            <div id="project-description" class="alert alert-info small w-100 d-none" role="alert">
+              All tasks will be sent to this project
+            </div>
+            <div id="project-required" class="alert alert-danger small w-100 d-none" role="alert">
+              Please select a project in order to begin.
+            </div>
           </div>
         </div>
       </div>

@@ -3,7 +3,6 @@ import {LoginDataService} from "../../modules/login.data.service.js";
 import {ApiDataService} from "../../modules/api.data.service.js";
 import {TranslationService} from "../../modules/translation.service.js";
 import {TranslationConfig} from "../../modules/translation.config.js";
-import {AppStatusKeys} from "../../modules/app.status.keys.js";
 import {AppConfig} from "../../modules/app.config.js";
 import {ChromeService} from "../../modules/chrome.service.js";
 import {StorageConstants} from "../../modules/storage.constants.js";
@@ -22,24 +21,18 @@ function showPopulateDefaultTable() {
 }
 
 function showLoggedIn() {
-  document.body.classList.remove("login");
   $("#logged-in-container").removeClass('d-none');
   $("#login-container").addClass('d-none');
+  $("#loading-container").addClass('d-none');
   $("#open-settings").removeClass('disabled');
   showPopulateDefaultTable();
 }
 
-function handleResponse(response) {
-  if(response) {
-    if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
-      $("#success-warn-body").html(TranslationService.translateFromKey(TranslationConfig.AUTHENTICATION_RESPONSE, response.status));
-      $("#success-warn").removeClass('d-none');
-      showLoggedIn();
-    } else if (response.status !== AppStatusKeys.HTTP_ERROR) {
-      $("#error-warn-body").html(TranslationService.translateFromKey(TranslationConfig.AUTHENTICATION_RESPONSE, response.status));
-      $("#error-warn").removeClass('d-none');
-    }
-  }
+function showLogIn() {
+  $("#logged-in-container").addClass('d-none');
+  $("#login-container").removeClass('d-none');
+  $("#loading-container").addClass('d-none');
+  $("#open-settings").addClass('disabled');
 }
 
 // try to load login data onload
@@ -50,6 +43,7 @@ function checkIfLoggedIn() {
       console.log("logged in");
       showLoggedIn();
     } else {
+      showLogIn();
       setTimeout(checkIfLoggedIn, 1000);
     }
   });

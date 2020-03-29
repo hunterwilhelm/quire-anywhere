@@ -91,16 +91,24 @@ function initialize() {
   } else {
     showProjectRequired();
   }
+  showResults();
+}
+
+function showResults() {
+  $("#loading-container").addClass("d-none");
+  $("#project-settings-options-container").removeClass("d-none");
 }
 
 function showProjectRequired() {
   $("#project-description").addClass('d-none');
   $("#project-required").removeClass('d-none');
 }
+
 function hideProjectRequired() {
   $("#project-description").removeClass('d-none');
   $("#project-required").addClass('d-none');
 }
+
 function showSuccessAlert() {
   const successAlert = $("#success-alert");
   successAlert.removeClass('d-none');
