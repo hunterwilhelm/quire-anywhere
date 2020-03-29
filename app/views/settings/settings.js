@@ -26,8 +26,10 @@ $('#submit').on('click', function () {
     const projId = orgIdProjId[1];
     const orgName = allOrgs[orgId] ? allOrgs[orgId].name : null;
     const projName = allProjects[projId].name;
+    const projUrl = allProjects[projId].url;
     StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID, projId);
     StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME, projName);
+    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_URL, projUrl);
     StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID, orgId);
     if (orgName) {
       StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME, orgName);

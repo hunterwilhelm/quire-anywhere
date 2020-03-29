@@ -3,5 +3,5 @@ export class ChromeConstants {
         PAGE: "page",
         SELECTION: "selection",
         LINK: "link",
-    }
+    };
 }

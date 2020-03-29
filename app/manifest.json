@@ -1,9 +1,10 @@
 {
   "name": "Quire Anywhere",
-  "version": "0.1.6",
-  "version_name": "Beta 0.1.6",
+  "version": "2.0.0",
+  "version_name": "Beta 2.0.0",
   "description": "The Best Chrome Extension For Quire!",
   "permissions": [
+    "notifications",
     "contextMenus",
     "storage",
     "https://quire.io/*",

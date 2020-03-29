@@ -48,4 +48,18 @@ export class ChromeService {
             });
         }
     }
+
+    static createNotification(url, title, description) {
+        const options = {
+            type: "basic",
+            title: `Quire Anywhere - ${title}`,
+            message: description,
+            iconUrl: "images/quire-anywhere-128.png"
+        };
+        chrome.notifications.create(url, options);
+    }
+
+    static registerNotificationOnClickListener(notificationIdCallback) {
+        chrome.notifications.onClicked.addListener(notificationIdCallback);
+    }
 }

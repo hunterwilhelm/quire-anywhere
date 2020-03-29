@@ -3,6 +3,7 @@ import {ApiConfig} from "./api.config.js";
 import {ApiHttpService} from "./api.http.service.js";
 import {Task} from "../models/task.model.js";
 import {StorageConstants} from "./storage.constants.js";
+import {ChromeService} from "./chrome.service.js";
 
 export class ApiDataService {
   constructor() {}
@@ -49,8 +50,12 @@ export class ApiDataService {
     const url = ApiConfig.postNewTaskUrl.replace("{projectId}", project_id);
     // const defaultOrgName = StorageService.readLocal('default_org_name');
     const defaultProjName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME);
+    const defaultProjUrl = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_URL);
     ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(response) {
-      alert(`New task #${response.id} added to ${defaultProjName}`);
+      // alert(`New task #${response.id} added to ${defaultProjName}`);
+      ChromeService.createNotification(`${defaultProjUrl}/${response.id}`,
+          `Task added`,
+          `to ${defaultProjName}\nClick to open`);
     });
   }
   // ADD (and then post)

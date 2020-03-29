@@ -31,9 +31,10 @@ function onClickHandler(info, tab) {
     if (!loggedIn) {
       const state = StorageService.readLocal(StorageConstants.QUIRE.STATE);
       if (state) {
+        // unlikely
         alert("Please finish logging in by clicking on the chrome extension again");
       } else {
-        alert("Please log in first");
+        alert("Please log in first\nClick on the chrome extension to sign in to Quire");
       }
       return;
     }
@@ -70,6 +71,7 @@ function onInstalledHandler() {
   setInterval(ChromeService.registerContextMenuItems, oneHourInMilliseconds);
   ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
   ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
+  ChromeService.registerNotificationOnClickListener(onNotificationClickedHandler);
   quireRefreshTokenExpiredChecker();
 }
 
@@ -143,6 +145,11 @@ function quireRefreshTokenExpiredChecker() {
   }, 1000 * 10);
 }
 
+function onNotificationClickedHandler(notificationId) {
+  if (notificationId && notificationId !== "") {
+    chrome.tabs.create({url: notificationId});
+  }
+}
 
 chrome.contextMenus.onClicked.addListener(onClickHandler);
 chrome.runtime.onInstalled.addListener(onInstalledHandler);
