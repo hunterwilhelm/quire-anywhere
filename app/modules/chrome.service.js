@@ -1,5 +1,6 @@
 import {TranslationService} from "./translation.service.js";
 import {TranslationConfig} from "./translation.config.js";
+import {ChromeConstants} from "./chrome.constants.js";
 
 export class ChromeService {
 
@@ -11,7 +12,11 @@ export class ChromeService {
     }
     static _createContextMenuItemsCallback() {
         // const contexts = ["page", "selection", "link", "editable", "image", "video", "audio"];
-        const contexts = ["page", "selection", "link"];
+        const contexts = [
+            ChromeConstants.CONTEXT_MENU_TYPES.PAGE,
+            ChromeConstants.CONTEXT_MENU_TYPES.SELECTION,
+            ChromeConstants.CONTEXT_MENU_TYPES.LINK
+        ];
         for (let i = 0; i < contexts.length; i++) {
             const context = contexts[i];
             const contextTranslation = TranslationService.translateFromKey(TranslationConfig.CONTEXT_MENU, context);
@@ -27,7 +32,8 @@ export class ChromeService {
         // returns id
         return chrome.contextMenus.create({
             "title": title,
-            "contexts": [context]
+            "contexts": [context],
+            "id": context
         });
     }
 }

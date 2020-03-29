@@ -66,6 +66,7 @@ function onInstalledHandler() {
   StorageService.saveSync("color", '#57a73a', function() {
     console.log(">> Quire anywhere extension installed correctly!");
   });
+  ChromeService.registerContextMenuItems();
   setInterval(ChromeService.registerContextMenuItems, oneHourInMilliseconds);
   window.addEventListener("storage", onStorageChangedController);
 }
