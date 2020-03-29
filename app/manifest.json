@@ -19,17 +19,17 @@
     "default_title": "Quire Anywhere",
     "default_popup": "/views/popup/popup.html",
     "default_icon": {
-      "16": "images/quire-anywhere-16.png",
-      "32": "images/quire-anywhere-32.png",
-      "48": "images/quire-anywhere-48.png",
-      "128": "images/quire-anywhere-128.png"
+      "16": "images/quire-anywhere-16-opaque.png",
+      "32": "images/quire-anywhere-32-opaque.png",
+      "48": "images/quire-anywhere-48-opaque.png",
+      "128": "images/quire-anywhere-128-opaque.png"
     }
   },
   "icons": {
-    "16": "images/quire-anywhere-16.png",
-    "32": "images/quire-anywhere-32.png",
-    "48": "images/quire-anywhere-48.png",
-    "128": "images/quire-anywhere-128.png"
+    "16": "images/quire-anywhere-16-clear.png",
+    "32": "images/quire-anywhere-32-clear.png",
+    "48": "images/quire-anywhere-48-clear.png",
+    "128": "images/quire-anywhere-128-clear.png"
   },
   "manifest_version": 2
 }
