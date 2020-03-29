@@ -6,6 +6,7 @@ import {TranslationConfig} from "../../modules/translation.config.js";
 import {AppConfig} from "../../modules/app.config.js";
 import {ChromeService} from "../../modules/chrome.service.js";
 import {StorageConstants} from "../../modules/storage.constants.js";
+import {Task} from "../../models/task.model.js";
 
 function showPopulateDefaultTable() {
   const orgName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME);
@@ -14,10 +15,77 @@ function showPopulateDefaultTable() {
     $('#default-org').html(orgName);
     $('#default-proj').html(projName);
     $('#table-container').removeClass('d-none');
+    showSetupAddTaskInput();
   } else {
     $("#warning-warn-body").html(TranslationService.translateFromKey(TranslationConfig.SETTINGS, "default-project-missing"));
     $("#warning-warn").removeClass('d-none');
   }
+}
+
+function showSetupAddTaskInput() {
+  $("#add-task-container").removeClass("d-none");
+  const addTaskInput = $("#add-task-container input");
+  $("#add-task-container button").on("click", sendTaskHandler);
+  addTaskInput.on('keyup', validateAddTaskInput);
+  addTaskInput.on('keyup', function(e) {
+    if(e.keyCode === 13) {
+      sendTaskHandler();
+    }
+  });
+  addTaskInput.select();
+}
+
+function sendTaskHandler() {
+  const addTaskInput = $("#add-task-container input");
+  if (validateAddTaskInput(true)) {
+    const projId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+    let task = new Task(addTaskInput.val(), "From: Add Task Box");
+    ApiDataService.postTaskIntoProject(task, projId).then((taskSucceeded)=>{
+      if (taskSucceeded) {
+        resetTaskInput();
+      }
+    });
+  }
+}
+
+function resetTaskInput() {
+  $("#task-cannot-be-blank-warn").addClass("d-none");
+  $("#add-task-container input")
+      .removeClass("border border-danger")
+      .val("");
+  $("#add-task-container button")
+      .removeClass("btn-outline-success")
+      .addClass("btn-outline-secondary");
+}
+
+function validateAddTaskInput(sendEvent) {
+  let val = $("#add-task-container input").val();
+  if (val && val.trim().length > 0) {
+    hideAddTaskFieldRequired();
+    return true;
+  } else {
+    showAddTaskFieldRequired(sendEvent);
+    return false;
+  }
+}
+
+function showAddTaskFieldRequired(sendEvent) {
+  if (sendEvent === true) {
+    $("#task-cannot-be-blank-warn").removeClass("d-none");
+  }
+  $("#add-task-container input").addClass("border border-danger");
+  $("#add-task-container button")
+      .removeClass("btn-outline-success")
+      .addClass("btn-outline-secondary");
+}
+
+function hideAddTaskFieldRequired() {
+  $("#task-cannot-be-blank-warn").addClass("d-none");
+  $("#add-task-container input")
+      .removeClass("border border-danger");
+  $("#add-task-container button")
+      .removeClass("btn-outline-secondary")
+      .addClass("btn-outline-success");
 }
 
 function showLoggedIn() {

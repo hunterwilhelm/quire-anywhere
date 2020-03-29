@@ -19,8 +19,8 @@
   <div class="navbar-collapse collapse justify-content-between align-items-center w-100" id="collapsingNavbar2">
     <ul class="navbar-nav mx-auto text-md-center text-left">
     </ul>
-    <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap">
-      <a id="open-settings" type="button" class="disabled"><li class="nav-item"><i class="fa fa-cog fa-2x"  aria-hidden="true" style="color: #AAA;"></i></li></a>
+    <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap m-2">
+      <a  id="open-settings" type="button" class="disabled"><li class="nav-item"><i class="fa fa-cog fa-2x text-secondary"  aria-hidden="true"></i></li></a>
     </ul>
   </div>
 </nav>
@@ -59,11 +59,24 @@
       </div>
     </div>
   </div>
-  <span id="access-token"></span>
+  <div class="d-none" id="add-task-container">
+    <div class="input-group mb-3">
+      <input type="text" class="form-control">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button">Add Task</button>
+      </div>
+    </div>
+    <div class="container d-none" id="task-cannot-be-blank-warn">
+      <div class="alert alert-danger fade show">
+        <span id="empty-task-warn-body">Error: Add Task field cannot be blank</span>
+      </div>
+    </div>
+  </div>
+<!--  <span id="access-token"></span>-->
   <div class="row justify-content-center m-3">
     <div class="text-center">
       <!--<button class="btn btn-outline-warning" id="get-token">Show Token</button>-->
-      <button class="btn btn-outline-dark" id="logout-button">Log Out</button>
+      <button class="btn btn-outline-secondary" id="logout-button">Log Out</button>
     </div>
   </div>
 </div>

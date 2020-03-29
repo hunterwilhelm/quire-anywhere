@@ -25,7 +25,7 @@ StorageService.readAllSync(function(syncArray) {
     }
   }
 });
-function onClickHandler(info, tab) {
+function onContextMenuClickedHandler(info, tab) {
   const loginDataService = new LoginDataService();
   loginDataService.isLoggedIn(function(loggedIn) {
     if (!loggedIn) {
@@ -151,7 +151,7 @@ function onNotificationClickedHandler(notificationId) {
   }
 }
 
-chrome.contextMenus.onClicked.addListener(onClickHandler);
+chrome.contextMenus.onClicked.addListener(onContextMenuClickedHandler);
 chrome.runtime.onInstalled.addListener(onInstalledHandler);
 
 

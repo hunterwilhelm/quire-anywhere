@@ -51,11 +51,16 @@ export class ApiDataService {
     // const defaultOrgName = StorageService.readLocal('default_org_name');
     const defaultProjName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME);
     const defaultProjUrl = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_URL);
-    ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(response) {
-      // alert(`New task #${response.id} added to ${defaultProjName}`);
-      ChromeService.createNotification(`${defaultProjUrl}/${response.id}`,
-          `Task added`,
-          `to ${defaultProjName}\nClick to open`);
+    return new Promise((resolve) => {
+      ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(response) {
+        // alert(`New task #${response.id} added to ${defaultProjName}`);
+        ChromeService.createNotification(
+            `${defaultProjUrl}/${response.id}`,
+            `Task added`,
+            `to ${defaultProjName}\nClick to open`
+        );
+        resolve(true);
+      });
     });
   }
   // ADD (and then post)

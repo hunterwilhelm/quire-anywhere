@@ -54,7 +54,8 @@ export class ChromeService {
             type: "basic",
             title: `Quire Anywhere - ${title}`,
             message: description,
-            iconUrl: "images/quire-anywhere-128.png"
+            iconUrl: "/images/quire-anywhere-128.png",
+            silent: true,
         };
         chrome.notifications.create(url, options);
     }
