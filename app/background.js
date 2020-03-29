@@ -69,6 +69,7 @@ function onInstalledHandler() {
   ChromeService.registerContextMenuItems();
   setInterval(ChromeService.registerContextMenuItems, oneHourInMilliseconds);
   window.addEventListener("storage", onStorageChangedController);
+  quireRefreshTokenExpiredChecker();
 }
 
 function onStorageChangedController(e) {
@@ -85,16 +86,16 @@ function onStorageChangedController(e) {
 }
 
 function onQuireStateChangeHandler() {
-  const attemptingLogin = StorageService.readLocal(StorageConstants.ATTEMPT_LOGIN.ATTEMPTING);
+  const attemptingLogin = StorageService.readLocal(StorageConstants.LOGIN.ATTEMPTING);
   if (!(attemptingLogin === StorageConstants.TRUE)) {
     console.log(">> Attempting login...");
     let loginDataService = new LoginDataService();
     const attemptingLoginId = setInterval(function () {
           loginDataService.attemptLogin(responseHandler)
     }, 1000);
-    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ATTEMPTING, StorageConstants.TRUE);
-    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ID, attemptingLoginId);
-    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.TRIES, 100);
+    StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.TRUE);
+    StorageService.saveLocal(StorageConstants.LOGIN.ID, attemptingLoginId);
+    StorageService.saveLocal(StorageConstants.LOGIN.TRIES, 100);
   }
 }
 
@@ -102,17 +103,19 @@ function responseHandler(response) {
   function onLoginHandler() {
     console.log(">> SUCCESS: Logged in successfully!");
 
-    const attemptingLoginId = parseInt(StorageService.readLocal(StorageConstants.ATTEMPT_LOGIN.ID));
+    const attemptingLoginId = parseInt(StorageService.readLocal(StorageConstants.LOGIN.ID));
     clearInterval(attemptingLoginId);
 
-    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ATTEMPTING, StorageConstants.FALSE);
+    StorageService.saveLocal(StorageConstants.QUIRE.REFRESH_TOKEN_EXPIRED, StorageConstants.FALSE);
+    StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.FALSE);
+    onQuireExpiresInHandler();
   }
 
   function onHttpErrorHandler() {
-    let tries = parseInt(StorageService.readLocal(StorageConstants.ATTEMPT_LOGIN.TRIES)) - 1;
+    let tries = parseInt(StorageService.readLocal(StorageConstants.LOGIN.TRIES)) - 1;
 
     console.log(">> ERROR: Could not log in yet. tries left:", tries);
-    StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.TRIES, tries);
+    StorageService.saveLocal(StorageConstants.LOGIN.TRIES, tries);
   }
 
   if (StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN) === StorageConstants.TRUE) {
@@ -120,7 +123,6 @@ function responseHandler(response) {
   } else if (response) {
     if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
       onLoginHandler();
-      onQuireExpiresInHandler();
     } else if (response.status === AppStatusKeys.HTTP_ERROR) {
       onHttpErrorHandler();
     }
@@ -129,8 +131,28 @@ function responseHandler(response) {
 
 
 function onQuireExpiresInHandler() {
-  let quireExpiresIn = StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN);
+  const quireExpiresIn = parseInt(StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN));
+  if (quireExpiresIn) {
+    const quireExpiresInMilliseconds = quireExpiresIn * 1000;
+    console.log(">>> Setting up onQuireExpiresInHandler quireExpiresInMilliseconds:", quireExpiresInMilliseconds);
+    setTimeout(function () {
+      StorageService.saveLocal(StorageConstants.QUIRE.REFRESH_TOKEN_EXPIRED, StorageConstants.TRUE);
+    }, quireExpiresInMilliseconds);
+  } else {
+    console.log(">>> ERROR: Could not set up onQuireExpiresInHandler because quireExpiresIn:", quireExpiresIn);
+  }
+}
 
+
+function quireRefreshTokenExpiredChecker() {
+  setInterval(function () {
+    const refreshTokenExpired = StorageService.readLocal(StorageConstants.QUIRE.REFRESH_TOKEN_EXPIRED);
+    console.log(">> quireRefreshTokenExpiredChecker refreshTokenExpired:", refreshTokenExpired);
+    if (refreshTokenExpired === StorageConstants.TRUE) {
+      const loginDataService = new LoginDataService();
+      loginDataService.attemptRefreshToken(responseHandler);
+    }
+  }, 1000 * 10);
 }
 
 

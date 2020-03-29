@@ -44,15 +44,17 @@ function handleResponse(response) {
 
 // try to load login data onload
 const loginDataService = new LoginDataService();
-loginDataService.isLoggedIn(function (loggedIn) {
-  if (!loggedIn) {
-    console.log("logging in");
-    loginDataService.attemptLogin(handleResponse);
-  } else {
-    console.log("logged in");
-    showLoggedIn();
-  }
-});
+function checkIfLoggedIn() {
+  loginDataService.isLoggedIn(function (loggedIn) {
+    if (loggedIn) {
+      console.log("logged in");
+      showLoggedIn();
+    } else {
+      setTimeout(checkIfLoggedIn, 1000);
+    }
+  });
+}
+checkIfLoggedIn();
 
 const getTokenButton = document.querySelector('#get-token');
 if (getTokenButton) {

@@ -38,8 +38,8 @@ export class LoginDataService {
       console.log(quire_state);
       let self = this;
       LoginHttpService.postState(quire_state,function(response) {
-        thenFunction(response);
         self.handleResponse(response);
+        thenFunction(response);
       });
     } else {
       console.error("Failed to load quire state");

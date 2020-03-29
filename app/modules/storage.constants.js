@@ -2,6 +2,7 @@ export class StorageConstants {
     static QUIRE = {
         ACCESS_TOKEN: "quire_access_token",
         REFRESH_TOKEN:  "quire_refresh_token",
+        REFRESH_TOKEN_EXPIRED: "quire_refresh_token_expired",
         STATE: "quire_state",
 
         EXPIRES_IN: "quire_expires_in",
@@ -14,10 +15,10 @@ export class StorageConstants {
         DEFAULT_PROJ_ID: "default_proj_id",
         DEFAULT_PROJ_NAME: "default_proj_name",
     };
-    static ATTEMPT_LOGIN = {
-        ATTEMPTING: 'attempt_login_attempting',
-        ID: 'attempt_login_id',
-        TRIES: 'attempt_login_tries',
+    static LOGIN = {
+        ATTEMPTING: 'login_attempting',
+        ID: 'login_id',
+        TRIES: 'login_tries',
     };
     static TRUE = "true";
     static FALSE = "false";
