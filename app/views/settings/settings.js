@@ -5,6 +5,10 @@ import {StorageConstants} from "../../modules/storage.constants.js";
 let allProjects = {};
 let allOrgs = {};
 
+$('#proj-select').on('change', function () {
+  hideProjectRequired();
+});
+
 $('#submit').on('click', function () {
   const serializedArray = $('#settings-form').serializeArray();
   console.log(serializedArray);
@@ -27,7 +31,7 @@ $('#submit').on('click', function () {
     if (orgName) {
       StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME, orgName);
     }
-    alert("Saved!");
+    showSuccessAlert();
   }
 
 });
@@ -71,5 +75,36 @@ ApiDataService.getAllProjects(function(projects) {
     if ($(x).disabled) return -1;
     return $(x).text() > $(y).text() ? 1 : -1;
   }));
+
+  initialize();
 });
 
+function initialize() {
+
+
+  const defaultProjId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+  const defaultOrgId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
+
+  if (defaultOrgId && defaultProjId) {
+    $("#proj-select").val(`${defaultOrgId}/${defaultProjId}`);
+    hideProjectRequired();
+  } else {
+    showProjectRequired();
+  }
+}
+
+function showProjectRequired() {
+  $("#project-description").addClass('d-none');
+  $("#project-required").removeClass('d-none');
+}
+function hideProjectRequired() {
+  $("#project-description").removeClass('d-none');
+  $("#project-required").addClass('d-none');
+}
+function showSuccessAlert() {
+  const successAlert = $("#success-alert");
+  successAlert.removeClass('d-none');
+  successAlert.fadeTo(2000, 500).slideUp(500, function() {
+    successAlert.slideUp(500);
+  });
+}

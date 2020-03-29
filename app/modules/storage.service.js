@@ -23,7 +23,12 @@ export class StorageService {
         valueFunction(result[key]);
       });
     } else {
-      return localStorage.getItem("sync." + key);
+      let value = localStorage.getItem("sync." + key);
+      if (value === "null") {
+        return null;
+      } else {
+        return value;
+      }
     }
   }
 
@@ -33,7 +38,12 @@ export class StorageService {
         valueFunction(result[key]);
       });
     } else {
-      return localStorage.getItem("local." + key);
+      let value = localStorage.getItem("local." + key);
+      if (value === "null") {
+        return null;
+      } else {
+        return value;
+      }
     }
   }
 

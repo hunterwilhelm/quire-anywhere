@@ -40,7 +40,7 @@ function onClickHandler(info, tab) {
     const org = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
     const proj =  StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
     if (!(org && proj)) {
-      alert("Please go to settings to set your default project first");
+      window.open(chrome.runtime.getURL('/views/settings/settings.html'));
       return;
     }
     console.log("-------------INFO----------------");
@@ -91,7 +91,6 @@ function onQuireStateChangeHandler() {
     const attemptingLoginId = setInterval(function () {
           loginDataService.attemptLogin(responseHandler)
     }, 1000);
-    StorageService.saveLocal(StorageConstants.QUIRE.LOGGED_IN, StorageConstants.TRUE);
     StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ATTEMPTING, StorageConstants.TRUE);
     StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.ID, attemptingLoginId);
     StorageService.saveLocal(StorageConstants.ATTEMPT_LOGIN.TRIES, 100);
