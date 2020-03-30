@@ -53,8 +53,8 @@ function resetTaskInput() {
       .removeClass("border border-danger")
       .val("");
   $("#add-task-container button")
-      .removeClass("btn-outline-success")
-      .addClass("btn-outline-secondary");
+      .removeClass("btn-success")
+      .addClass("btn-secondary");
 }
 
 function validateAddTaskInput(sendEvent) {
@@ -74,8 +74,8 @@ function showAddTaskFieldRequired(sendEvent) {
   }
   $("#add-task-container input").addClass("border border-danger");
   $("#add-task-container button")
-      .removeClass("btn-outline-success")
-      .addClass("btn-outline-secondary");
+      .removeClass("btn-success")
+      .addClass("btn-secondary");
 }
 
 function hideAddTaskFieldRequired() {
@@ -83,8 +83,8 @@ function hideAddTaskFieldRequired() {
   $("#add-task-container input")
       .removeClass("border border-danger");
   $("#add-task-container button")
-      .removeClass("btn-outline-secondary")
-      .addClass("btn-outline-success");
+      .removeClass("btn-secondary")
+      .addClass("btn-success");
 }
 
 function showLoggedIn() {
@@ -153,9 +153,6 @@ document.querySelector("#login-button").addEventListener("click", function () {
 $(document).on('click', '.alert-close', function() {
   $(this).parent().addClass('d-none');
 });
-
-// register Context Menu again
-ChromeService.registerContextMenuItems();
 
 
 // PROJECT SETTINGS - this is the reason why I need to move to angular... duplicated code...
@@ -284,3 +281,6 @@ function hideProjectTable() {
 function showProjectTable() {
   $("#default-project-table").removeClass("d-none");
 }
+
+// register Context Menu again
+ChromeService.registerContextMenuItems();

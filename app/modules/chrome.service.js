@@ -2,6 +2,7 @@ import {TranslationService} from "./translation.service.js";
 import {TranslationConfig} from "./translation.config.js";
 import {ChromeConstants} from "./chrome.constants.js";
 import {StorageService} from "./storage.service.js";
+import {StorageConstants} from "./storage.constants.js";
 
 export class ChromeService {
 
@@ -9,32 +10,27 @@ export class ChromeService {
         console.log(">> Registering context menu items...");
 
         // clear all context menu items so that there are no id conflicts
-        chrome.contextMenus.removeAll(this._createContextMenuItemsCallback)
+        chrome.contextMenus.removeAll(this._createContextMenuItemsCallback);
     }
     static _createContextMenuItemsCallback() {
         // const contexts = ["page", "selection", "link", "editable", "image", "video", "audio"];
-        const contexts = [
-            ChromeConstants.CONTEXT_MENU_TYPES.PAGE,
-            ChromeConstants.CONTEXT_MENU_TYPES.SELECTION,
-            ChromeConstants.CONTEXT_MENU_TYPES.LINK
-        ];
-        for (let i = 0; i < contexts.length; i++) {
-            const context = contexts[i];
-            const contextTranslation = TranslationService.translateFromKey(TranslationConfig.CONTEXT_MENU, context);
+        const contextMenuIds = {};
+        for (const contextMenuType of Object.values(ChromeConstants.CONTEXT_MENU_TYPES)) {
+            const contextTranslation = TranslationService.translateFromKey(TranslationConfig.CONTEXT_MENU, contextMenuType);
             const title = "Add " + contextTranslation + " to Quire";
 
-            const id = ChromeService._createContextMenuItem(title, context);
+            contextMenuIds[contextMenuType] = ChromeService._createContextMenuItem(title, contextMenuType);
 
-            console.log("Adding " + contextTranslation + " id:" + id + " to Quire...");
+            console.log("Adding " + contextTranslation + " id:" + contextMenuIds[contextMenuType] + " to Quire...");
         }
+        StorageService.saveLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS, JSON.stringify(contextMenuIds));
     }
 
     static _createContextMenuItem(title, context) {
         // returns id
         return chrome.contextMenus.create({
             "title": title,
-            "contexts": [context],
-            "id": context
+            "contexts": [context]
         });
     }
 

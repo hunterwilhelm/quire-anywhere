@@ -4,6 +4,8 @@ import {StorageConstants} from "../../modules/storage.constants.js";
 import {ChromeService} from "../../modules/chrome.service.js";
 
 
+$('#version').text(chrome.runtime.getManifest().version_name);
+
 $('#proj-select').on('change', function () {
   hideProjectRequired();
 });

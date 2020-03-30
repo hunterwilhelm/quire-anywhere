@@ -26,4 +26,7 @@ export class StorageConstants {
     };
     static TRUE = "true";
     static FALSE = "false";
+    static CONFIG = {
+        CONTEXT_MENU_IDS: 'config.context_menu_ids'
+    };
 }

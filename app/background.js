@@ -44,17 +44,19 @@ function onContextMenuClickedHandler(info, tab) {
       window.open(chrome.runtime.getURL('/views/settings/settings.html'));
       return;
     }
+    const contextMenuEntries = JSON.parse(StorageService.readLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS));
     console.log("-------------INFO----------------");
+    console.log("contextMenuEntries: ", contextMenuEntries);
     console.log("info: ", info);
     console.log("tab: ", tab);
     switch (info.menuItemId) {
-      case ChromeConstants.CONTEXT_MENU_TYPES.PAGE:
+      case contextMenuEntries[ChromeConstants.CONTEXT_MENU_TYPES.PAGE]:
         ApiDataService.addPageTask(info, tab);
         break;
-      case ChromeConstants.CONTEXT_MENU_TYPES.SELECTION:
+      case contextMenuEntries[ChromeConstants.CONTEXT_MENU_TYPES.SELECTION]:
         ApiDataService.addSelectionTask(info, tab);
         break;
-      case ChromeConstants.CONTEXT_MENU_TYPES.LINK:
+      case contextMenuEntries[ChromeConstants.CONTEXT_MENU_TYPES.LINK]:
         ApiDataService.addLinkTask(info, tab);
         break;
     }

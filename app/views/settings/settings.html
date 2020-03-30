@@ -13,32 +13,40 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light">
   <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Project Settings</a>
+      <li class="nav-item col-md-3 pt-2">
+        <img src="../../images/quire-anywhere-128-clear.png" class="img-fluid" alt="">
+      </li>
+      <li class="nav-item active border-left p-2">
+        <a class="nav-link">Quire Anywhere</a>
       </li>
     </ul>
   </div>
   <div class="mx-auto order-0">
-    <a class="navbar-brand mx-auto" href="#">Quire Anywhere</a>
+    <a class="navbar-brand mx-auto">Project Settings</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
       <span class="navbar-toggler-icon"></span>
     </button>
   </div>
   <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link"><span id="version"></span></a>
+      </li>
+    </ul>
   </div>
 </nav>
-<div class="container">
+<div class="container col-6">
   <!-- CHOOSE PROJECT -->
   <form id="settings-form">
     <div class="row">
-      <div class="col-sm-7">
+      <div class="col-12">
         <h3 class="border-bottom p-2">
           Choose Project
         </h3>
       </div>
     </div>
     <div class="project-settings row">
-      <div class="col-sm-7">
+      <div class="col-12">
         <h5 class="cover-heading">One Default Project</h5>
         <!-- LOADING SPINNER -->
         <div class="w-100" id="loading-container">
@@ -70,20 +78,11 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-5 border-left d-none">
-        <div class="custom-control custom-radio m-2">
-          <input type="radio" class="custom-control-input" id="default-project-choose-every-time" name="project" value="one-default">
-          <label class="custom-control-label" for="default-project-choose-every-time">Choose Every Time</label>
-        </div>
-        <div class="alert alert-warning small w-75" role="alert">
-          To be added in the future
-        </div>
-      </div>
     </div>
   </form>
   <br>
   <div class="row">
-    <div class="col-6">
+    <div class="col-12">
       <div id="success-alert" class="alert alert-success small w-50 d-none" role="alert">
         <b>Success:</b> Settings have been saved!
       </div>
