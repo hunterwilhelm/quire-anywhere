@@ -115,4 +115,72 @@ export class ApiDataService {
       return null;
     }
   }
+
+  // HTML MANIPULATION
+  static fillSelectMenu(projects, projSelect) {
+    let allProjects = {};
+    const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
+
+
+    for (let i in projects) {
+      allProjects[projects[i].oid] = projects[i];
+    }
+
+    console.log(allProjects, projects);
+    for (const i in projects) {
+      const option = document.createElement("option");
+      const org = allOrgs[projects[i].organization];
+      const projId = projects[i].oid;
+      const projName = projects[i].name;
+      if (org) {
+        const orgId = org.oid;
+        const orgName = org.name;
+        option.text = `${orgName} - ${projName}`;
+        option.value = `${orgId}/${projId}`;
+        projSelect.append(option);
+      } else if (projId && projName) {
+        const orgId = projects[i].organization;
+        option.text = `${projName}`;
+        option.value = `${orgId}/${projId}`;
+        projSelect.append(option);
+      } else {
+        alert("Could not load any projects, please sign in!");
+      }
+    }
+    projSelect.html(projSelect.find('option').sort(function(x, y) {
+      if ($(x).disabled) return -1;
+      return $(x).text() > $(y).text() ? 1 : -1;
+    }));
+
+
+    StorageService.saveLocal(StorageConstants.QUIRE.ALL_PROJECTS, JSON.stringify(allProjects));
+  }
+
+  static getProjectFromSelectMenuAndSave(serializedArray, projectRequiredCallback, successCallback) {
+    const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
+    const allProjects = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
+    // compile into one object
+    let formData = [];
+    for (const i in serializedArray) {
+      formData[serializedArray[i].name] = serializedArray[i].value;
+    }
+    if (!formData["org-id/proj-id"]) {
+      projectRequiredCallback(true);
+    } else {
+      const orgIdProjId = formData['org-id/proj-id'].split('/');
+      const orgId = orgIdProjId[0];
+      const projId = orgIdProjId[1];
+      const orgName = allOrgs[orgId] ? allOrgs[orgId].name : null;
+      const projName = allProjects[projId].name;
+      const projUrl = allProjects[projId].url;
+      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID, projId);
+      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME, projName);
+      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_URL, projUrl);
+      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID, orgId);
+      if (orgName) {
+        StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME, orgName);
+      }
+      successCallback();
+    }
+  }
 }

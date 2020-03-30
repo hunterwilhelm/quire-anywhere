@@ -9,6 +9,7 @@
   <script src="../../libraries/bootstrap.min.js"></script>
 </head>
 <body>
+<!-- NAVIGATION -->
 <nav class="navbar navbar-expand-md navbar-light bg-light">
   <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
     <ul class="navbar-nav mr-auto">
@@ -27,6 +28,7 @@
   </div>
 </nav>
 <div class="container">
+  <!-- CHOOSE PROJECT -->
   <form id="settings-form">
     <div class="row">
       <div class="col-sm-7">
@@ -37,10 +39,8 @@
     </div>
     <div class="project-settings row">
       <div class="col-sm-7">
-        <div class="custom-control custom-radio m-2">
-          <input type="radio" class="custom-control-input" id="default-project-one-default" name="project" value="one-default" checked>
-          <label class="custom-control-label" for="default-project-one-default">One Default Project</label>
-        </div>
+        <h5 class="cover-heading">One Default Project</h5>
+        <!-- LOADING SPINNER -->
         <div class="w-100" id="loading-container">
           <div class="d-flex justify-content-center">
             <div class="spinner-border text-primary" role="status">
@@ -48,11 +48,17 @@
             </div>
           </div>
         </div>
+        <!-- PROJECT SELECT -->
         <div id="project-settings-options-container" class="d-none">
           <label class="w-100">
-            <select name="org-id/proj-id" id="proj-select"  class="custom-select custom-select-sm">
-              <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
-            </select>
+            <div class="input-group mb-3">
+              <select class="custom-select" name="org-id/proj-id" id="proj-select">
+                <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
+              </select>
+              <div class="input-group-append">
+                <button id="submit" class="btn btn-outline-secondary" type="button">Save</button>
+              </div>
+            </div>
           </label>
           <div class="alert-list">
             <div id="project-description" class="alert alert-info small w-100 d-none" role="alert">
@@ -76,11 +82,6 @@
     </div>
   </form>
   <br>
-  <div class="row">
-    <div class="col-sm-1">
-      <button type="button" class="btn btn-primary ml-2" id="submit">Save</button>
-    </div>
-  </div>
   <div class="row">
     <div class="col-6">
       <div id="success-alert" class="alert alert-success small w-50 d-none" role="alert">

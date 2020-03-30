@@ -3,8 +3,6 @@ import {StorageService} from "../../modules/storage.service.js";
 import {StorageConstants} from "../../modules/storage.constants.js";
 import {ChromeService} from "../../modules/chrome.service.js";
 
-let allProjects = {};
-let allOrgs = {};
 
 $('#proj-select').on('change', function () {
   hideProjectRequired();
@@ -13,72 +11,28 @@ $('#proj-select').on('change', function () {
 $('#submit').on('click', function () {
   const serializedArray = $('#settings-form').serializeArray();
   console.log(serializedArray);
-  // compile into one object
-  let formData = [];
-  for (const i in serializedArray) {
-    formData[serializedArray[i].name] = serializedArray[i].value;
-  }
-  if (!formData["org-id/proj-id"]) {
-    alert("Please choose project");
-  } else {
-    const orgIdProjId = formData['org-id/proj-id'].split('/');
-    const orgId = orgIdProjId[0];
-    const projId = orgIdProjId[1];
-    const orgName = allOrgs[orgId] ? allOrgs[orgId].name : null;
-    const projName = allProjects[projId].name;
-    const projUrl = allProjects[projId].url;
-    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID, projId);
-    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME, projName);
-    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_URL, projUrl);
-    StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID, orgId);
-    if (orgName) {
-      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME, orgName);
-    }
+  console.log(ApiDataService.getProjectFromSelectMenuAndSave);
+  ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
+      function () {
+    showProjectRequired(true);
+  }, function () {
     showSuccessAlert();
-  }
+  });
 
 });
 
 // load organizations
 ApiDataService.getAllOrganizations(function(orgs) {
+  let allOrgs = {};
   for (let i in orgs) {
     allOrgs[orgs[i].oid] = orgs[i];
   }
-  console.log(allOrgs, orgs);
+  StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
 });
 
 // load projects
-ApiDataService.getAllProjects(function(projects) {
-  for (let i in projects) {
-    allProjects[projects[i].oid] = projects[i];
-  }
-  console.log(allProjects, projects);
-  const projSelect = $("#proj-select");
-  for (const i in projects) {
-    const option = document.createElement("option");
-    const org = allOrgs[projects[i].organization];
-    const projId = projects[i].oid;
-    const projName = projects[i].name;
-    if (org) {
-      const orgId = org.oid;
-      const orgName = org.name;
-      option.text = `${orgName} - ${projName}`;
-      option.value = `${orgId}/${projId}`;
-      projSelect.append(option);
-    } else if (projId && projName) {
-      const orgId = projects[i].organization;
-      option.text = `${projName}`;
-      option.value = `${orgId}/${projId}`;
-      projSelect.append(option);
-    } else {
-      alert("Could not load any projects, please sign in!");
-    }
-  }
-  projSelect.html(projSelect.find('option').sort(function(x, y) {
-    if ($(x).disabled) return -1;
-    return $(x).text() > $(y).text() ? 1 : -1;
-  }));
-
+ApiDataService.getAllProjects(function (projects) {
+  ApiDataService.fillSelectMenu(projects, $("#proj-select"));
   initialize();
 });
 
@@ -90,26 +44,62 @@ function initialize() {
 
   if (defaultOrgId && defaultProjId) {
     $("#proj-select").val(`${defaultOrgId}/${defaultProjId}`);
-    hideProjectRequired();
-  } else {
-    showProjectRequired();
   }
-  showResults();
+  showDefaultProjectSelect();
+  validateDefaultProjectSelect();
 }
 
-function showResults() {
+function showDefaultProjectSelect() {
   $("#loading-container").addClass("d-none");
   $("#project-settings-options-container").removeClass("d-none");
 }
 
-function showProjectRequired() {
+function validateDefaultProjectSelect() {
+  let isDefaultOptionSelected = $("#project-settings-options-container select option:selected")[0].disabled;
+  if (isDefaultOptionSelected) {
+    showProjectRequired();
+    return false;
+  } else {
+    hideProjectRequired();
+    return true;
+  }
+}
+
+function showProjectRequired(buttonClicked) {
   $("#project-description").addClass('d-none');
   $("#project-required").removeClass('d-none');
+  if (buttonClicked) {
+    markButtonAsError();
+  } else {
+    markButtonAsInvalid();
+  }
 }
 
 function hideProjectRequired() {
   $("#project-description").removeClass('d-none');
   $("#project-required").addClass('d-none');
+  markButtonAsPrimary();
+}
+
+function markButtonAsError() {
+  $("#submit")
+      .addClass("btn-outline-danger")
+      .removeClass("btn-outline-secondary")
+      .removeClass("btn-outline-primary");
+}
+
+function markButtonAsInvalid() {
+  $("#submit")
+      .removeClass("btn-outline-danger")
+      .addClass("btn-outline-secondary")
+      .removeClass("btn-outline-primary");
+}
+
+function markButtonAsPrimary() {
+  $("#submit")
+      .removeClass("btn-outline-danger")
+      .removeClass("btn-outline-secondary")
+      .addClass("btn-outline-primary");
 }
 
 function showSuccessAlert() {

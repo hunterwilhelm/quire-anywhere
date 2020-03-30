@@ -9,8 +9,7 @@
     "storage",
     "https://quire.io/*",
     "https://zicy.net/*",
-    "http://zicy.net/*",
-    "https://cdnjs.cloudflare.com/*"
+    "http://zicy.net/*"
   ],
   "background": {
     "page": "background.html"

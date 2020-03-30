@@ -17,8 +17,7 @@ function showPopulateDefaultTable() {
     $('#table-container').removeClass('d-none');
     showSetupAddTaskInput();
   } else {
-    $("#warning-warn-body").html(TranslationService.translateFromKey(TranslationConfig.SETTINGS, "default-project-missing"));
-    $("#warning-warn").removeClass('d-none');
+    showChooseProjectContainer();
   }
 }
 
@@ -157,3 +156,131 @@ $(document).on('click', '.alert-close', function() {
 
 // register Context Menu again
 ChromeService.registerContextMenuItems();
+
+
+// PROJECT SETTINGS - this is the reason why I need to move to angular... duplicated code...
+$("#edit-project").on('click', function() {
+  hideProjectTable();
+  showChooseProjectContainer();
+});
+$("#close-edit-project").on('click', function() {
+  showProjectTable();
+  hideChooseProjectContainer();
+});
+
+$('#proj-select').on('change', function () {
+  hideProjectRequired();
+});
+
+$('#submit').on('click', function () {
+  const serializedArray = $('#settings-form').serializeArray();
+  ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
+      function () {
+        showProjectRequired(true);
+      }, function () {
+        hideChooseProjectContainer();
+        showProjectTable();
+        showSuccessAlert();
+        showPopulateDefaultTable();
+      });
+});
+
+// load organizations
+ApiDataService.getAllOrganizations(function(orgs) {
+  let allOrgs = {};
+  for (let i in orgs) {
+    allOrgs[orgs[i].oid] = orgs[i];
+  }
+  StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
+});
+
+// load projects
+ApiDataService.getAllProjects(function (projects) {
+  ApiDataService.fillSelectMenu(projects, $("#proj-select"));
+  initialize();
+});
+
+function initialize() {
+
+
+  const defaultProjId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+  const defaultOrgId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
+
+  if (defaultOrgId && defaultProjId) {
+    $("#proj-select").val(`${defaultOrgId}/${defaultProjId}`);
+  }
+  validateDefaultProjectSelect();
+}
+
+function validateDefaultProjectSelect() {
+  let isDefaultOptionSelected = $("#project-settings-options-container select option:selected")[0].disabled;
+  if (isDefaultOptionSelected) {
+    showProjectRequired();
+    return false;
+  } else {
+    hideProjectRequired();
+    return true;
+  }
+}
+
+function showProjectRequired(buttonClicked) {
+  $("#project-description").addClass('d-none');
+  $("#project-required").removeClass('d-none');
+  if (buttonClicked) {
+    markButtonAsError();
+  } else {
+    markButtonAsInvalid();
+  }
+}
+
+function hideProjectRequired() {
+  $("#project-description").removeClass('d-none');
+  $("#project-required").addClass('d-none');
+  markButtonAsPrimary();
+}
+
+function markButtonAsError() {
+  $("#submit")
+      .addClass("btn-outline-danger")
+      .removeClass("btn-outline-secondary")
+      .removeClass("btn-outline-primary");
+}
+
+function markButtonAsInvalid() {
+  $("#submit")
+      .removeClass("btn-outline-danger")
+      .addClass("btn-outline-secondary")
+      .removeClass("btn-outline-primary");
+}
+
+function markButtonAsPrimary() {
+  $("#submit")
+      .removeClass("btn-outline-danger")
+      .removeClass("btn-outline-secondary")
+      .addClass("btn-outline-primary");
+}
+
+function showSuccessAlert() {
+  const successAlert = $("#success-alert");
+  successAlert.removeClass('d-none');
+  successAlert.fadeTo(2000, 500).slideUp(500, function() {
+    successAlert.slideUp(500);
+  });
+}
+
+function hideChooseProjectContainer() {
+  $("#choose-project-container").addClass("d-none");
+}
+
+
+function showChooseProjectContainer() {
+  $("#choose-project-container").removeClass("d-none");
+}
+
+function hideProjectTable() {
+  $("#default-project-table").addClass("d-none");
+}
+
+function showProjectTable() {
+  $("#default-project-table").removeClass("d-none");
+}

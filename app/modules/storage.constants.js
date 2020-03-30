@@ -8,6 +8,9 @@ export class StorageConstants {
         EXPIRES_IN: "quire_expires_in",
         EXPIRES_IN_DATE: "quire_expires_in_date",
         LOGGED_IN: "quire_logged_in",
+
+        ALL_ORGANIZATIONS: "quire_all_organizations",
+        ALL_PROJECTS: "quire_all_projects"
     };
     static SETTINGS = {
         DEFAULT_ORG_ID: "default_org_id",
