@@ -171,7 +171,7 @@ $('#proj-select')
 $('#submit').on('click', save);
 function save() {
   // don't save if they are about to click the cancel button
-  if (!$('#close-edit-project').is(':hover')) {
+  if (!($('#close-edit-project').is(':hover') || $('#choose-project-container').is(':hover'))) {
     const serializedArray = $('#settings-form').serializeArray();
     ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
         function () {
