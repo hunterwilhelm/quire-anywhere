@@ -46,6 +46,8 @@ export class ChromeService {
     }
 
     static createNotification(url, title, description) {
+        this.registerNotificationOnClickListener();
+        console.log('-----CREATE NOTIFICATION------');
         const options = {
             type: "basic",
             title: `Quire Anywhere - ${title}`,
@@ -53,10 +55,14 @@ export class ChromeService {
             iconUrl: "/images/quire-anywhere-128-opaque.png",
             silent: true,
         };
+        console.log(options);
+        console.log('------------------------------');
         chrome.notifications.create(url, options);
     }
 
     static registerNotificationOnClickListener(notificationIdCallback) {
-        chrome.notifications.onClicked.addListener(notificationIdCallback);
+        if (!chrome.notifications.onClicked.hasListeners()) {
+            chrome.notifications.onClicked.addListener(notificationIdCallback);
+        }
     }
 }

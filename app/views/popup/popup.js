@@ -165,23 +165,26 @@ $("#close-edit-project").on('click', function() {
   hideChooseProjectContainer();
 });
 
-$('#proj-select').on('change', function () {
-  hideProjectRequired();
-});
-
-$('#submit').on('click', function () {
-  const serializedArray = $('#settings-form').serializeArray();
-  ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
-      function () {
-        showProjectRequired(true);
-      }, function () {
-        hideChooseProjectContainer();
-        showProjectTable();
-        showSuccessAlert();
-        showPopulateDefaultTable();
-      });
-});
-
+$('#proj-select')
+    .on('change', hideProjectRequired)
+    .on('blur', save);
+$('#submit').on('click', save);
+function save() {
+  // don't save if they are about to click the cancel button
+  if (!$('#close-edit-project').is(':hover')) {
+    const serializedArray = $('#settings-form').serializeArray();
+    ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
+        function () {
+          showProjectRequired(true);
+        }, function () {
+          hideChooseProjectContainer();
+          showProjectTable();
+          showSuccessAlert();
+          showPopulateDefaultTable();
+        }
+    );
+  }
+}
 // load organizations
 ApiDataService.getAllOrganizations(function(orgs) {
   let allOrgs = {};
