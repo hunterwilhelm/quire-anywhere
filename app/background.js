@@ -64,16 +64,19 @@ function onContextMenuClickedHandler(info, tab) {
   });
 }
 
-const oneHourInMilliseconds = 60*60*1000;
+const oneMinuteInMilliseconds = 60*1000;
 function onInstalledHandler() {
   StorageService.saveSync("color", '#57a73a', function() {
     console.log(">> Quire anywhere extension installed correctly!");
   });
-  ChromeService.registerContextMenuItems();
-  setInterval(ChromeService.registerContextMenuItems, oneHourInMilliseconds);
   ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
   ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
   quireRefreshTokenExpiredChecker();
+
+  ChromeService.registerContextMenuItems();
+  setInterval(function() {
+    ChromeService.registerContextMenuItems();
+  }, oneMinuteInMilliseconds);
 }
 
 function onQuireStateChangeHandler() {

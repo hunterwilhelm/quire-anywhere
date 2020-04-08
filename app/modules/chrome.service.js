@@ -7,31 +7,51 @@ import {StorageConstants} from "./storage.constants.js";
 export class ChromeService {
 
     static registerContextMenuItems() {
-        console.log(">> Registering context menu items...");
-
-        // clear all context menu items so that there are no id conflicts
-        chrome.contextMenus.removeAll(this._createContextMenuItemsCallback);
+        console.log("---REGISTERING CONTEXT MENUS---");
+        this.buildContextMenuItems().then(()=>{
+            console.log("-------------------------------");
+        });
     }
-    static _createContextMenuItemsCallback() {
-        // const contexts = ["page", "selection", "link", "editable", "image", "video", "audio"];
-        const contextMenuIds = {};
-        for (const contextMenuType of Object.values(ChromeConstants.CONTEXT_MENU_TYPES)) {
+
+    static async buildContextMenuItems() {
+        const contextMenuIds = JSON.parse(StorageService.readLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS));
+        const availableContextMenuTypes = Object.values(ChromeConstants.CONTEXT_MENU_TYPES);
+        for (const contextMenuType of availableContextMenuTypes) {
+            const contextMenuId = contextMenuIds[contextMenuType];
             const contextTranslation = TranslationService.translateFromKey(TranslationConfig.CONTEXT_MENU, contextMenuType);
             const title = "Add " + contextTranslation + " to Quire";
 
-            contextMenuIds[contextMenuType] = ChromeService._createContextMenuItem(title, contextMenuType);
+            const contextMenuProperties = {
+                "title": title,
+                "contexts": [contextMenuType]
+            };
 
-            console.log("Adding " + contextTranslation + " id:" + contextMenuIds[contextMenuType] + " to Quire...");
+            if (contextMenuId != null && await this.isContextMenuItemPresent(contextMenuId, contextMenuProperties)) {
+                console.log("Context menu item already exits", contextMenuId, contextMenuProperties);
+            } else {
+                contextMenuIds[contextMenuType] = this.createContextMenuItem(contextMenuProperties);
+                console.log("Context menu item created!", contextMenuIds[contextMenuType], contextMenuProperties);
+            }
         }
         StorageService.saveLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS, JSON.stringify(contextMenuIds));
     }
 
-    static _createContextMenuItem(title, context) {
-        // returns id
-        return chrome.contextMenus.create({
-            "title": title,
-            "contexts": [context]
+    static async isContextMenuItemPresent(id, item) {
+        return new Promise((resolve) => {
+            chrome.contextMenus.update(id, item, function () {
+                if (chrome.runtime.lastError) {
+                    void chrome.runtime.lastError;
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            });
         });
+    }
+
+    static createContextMenuItem(createProperties) {
+        // returns id
+        return chrome.contextMenus.create(createProperties);
     }
 
     static registerStorageListener(newValueCallback, storageKey) {

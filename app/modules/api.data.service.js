@@ -25,7 +25,6 @@ export class ApiDataService {
   static getProjectsByOrganization(organizationId, projectsFunction) {
     // Currently broken, 404 error
     const url = ApiConfig.getProjectsByOrganizationUrl.replace("{organizationOid}", organizationId);
-    console.log(url);
     ApiHttpService.getFromQuire(url, this.getToken(), function(response) {
       projectsFunction(response);
     });
@@ -39,7 +38,6 @@ export class ApiDataService {
 
   static getAllProjects(projectsFunction) {
     const url = ApiConfig.getAllProjectsUrl;
-    console.log(url);
     ApiHttpService.getFromQuire(url, this.getToken(), function(response) {
       projectsFunction(response);
     });
@@ -125,8 +123,6 @@ export class ApiDataService {
     for (let i in projects) {
       allProjects[projects[i].oid] = projects[i];
     }
-
-    console.log(allProjects, projects);
     for (const i in projects) {
       const option = document.createElement("option");
       const org = allOrgs[projects[i].organization];
