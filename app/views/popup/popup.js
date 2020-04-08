@@ -3,15 +3,18 @@ import {LoginDataService} from "../../modules/login.data.service.js";
 import {ApiDataService} from "../../modules/api.data.service.js";
 import {TranslationService} from "../../modules/translation.service.js";
 import {TranslationConfig} from "../../modules/translation.config.js";
-import {AppConfig} from "../../modules/app.config.js";
 import {ChromeService} from "../../modules/chrome.service.js";
 import {StorageConstants} from "../../modules/storage.constants.js";
 import {Task} from "../../models/task.model.js";
 
 function showPopulateDefaultTable() {
-  const orgName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME);
-  const projName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME);
-  if (orgName && projName) {
+  const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
+  const defaultOrgId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
+  const allProjects = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
+  const defaultProjectId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+  if (allProjects && defaultProjectId && allProjects[defaultProjectId]) {
+    const orgName = defaultOrgId ? allOrgs[defaultOrgId]? allOrgs[defaultOrgId].name : "Not Accessible" : "Not Accessible";
+    const projName = allProjects[defaultProjectId].name;
     $('#default-org').html(orgName);
     $('#default-proj').html(projName);
     $('#table-container').removeClass('d-none');
@@ -108,6 +111,7 @@ function checkIfLoggedIn() {
   loginDataService.isLoggedIn(function (loggedIn) {
     if (loggedIn) {
       console.log("logged in");
+      loadQuireData();
       showLoggedIn();
     } else {
       showLogIn();
@@ -125,13 +129,7 @@ if (getTokenButton) {
 }
 
 
-document.querySelector('#logout-button').addEventListener('click', function () {
-  StorageService.clearAllStorage();
-  // wait for storage to clear
-  setTimeout(function() {
-    window.open(AppConfig.quireAppSettingsUrl);
-  }, 300)
-});
+document.querySelector('#logout-button').addEventListener('click', loginDataService.logout);
 const settingsButton = $('#open-settings');
 settingsButton.on('click', function() {
   if (settingsButton.hasClass('disabled')) {
@@ -168,10 +166,10 @@ $("#close-edit-project").on('click', function() {
 $('#proj-select')
     .on('change', hideProjectRequired)
     .on('blur', save);
-$('#submit').on('click', save);
-function save() {
+$('#submit').on('click', ()=>{save(true)});
+function save(clicked) {
   // don't save if they are about to click the cancel button
-  if (!($('#close-edit-project').is(':hover') || $('#choose-project-container').is(':hover'))) {
+  if (clicked || !($('#close-edit-project').is(':hover') || $('#choose-project-container').is(':hover'))) {
     const serializedArray = $('#settings-form').serializeArray();
     ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
         function () {
@@ -185,20 +183,32 @@ function save() {
     );
   }
 }
-// load organizations
-ApiDataService.getAllOrganizations(function(orgs) {
-  let allOrgs = {};
-  for (let i in orgs) {
-    allOrgs[orgs[i].oid] = orgs[i];
-  }
-  StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
-});
 
-// load projects
-ApiDataService.getAllProjects(function (projects) {
-  ApiDataService.fillSelectMenu(projects, $("#proj-select"));
-  initialize();
-});
+function loadQuireData() {
+  // load organizations
+  ApiDataService.getAllOrganizations(function(orgs) {
+    let allOrgs = {};
+    for (let i in orgs) {
+      allOrgs[orgs[i].oid] = orgs[i];
+    }
+    StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
+  });
+
+  // load projects
+  ApiDataService.getAllProjects(function (projects) {
+    if (projects && projects.response) {
+      loginDataService.attemptRefreshToken(function(loggedIn) {
+        if (!loggedIn) {
+          loginDataService.logout(false);
+        }
+      })
+    } else {
+      ApiDataService.fillSelectMenu(projects, $("#proj-select"));
+      initialize();
+    }
+  });
+}
+
 
 function initialize() {
 
@@ -209,12 +219,12 @@ function initialize() {
   if (defaultOrgId && defaultProjId) {
     $("#proj-select").val(`${defaultOrgId}/${defaultProjId}`);
   }
-  validateDefaultProjectSelect();
+  validateDefaultProjectSelect(!(defaultOrgId || defaultProjId));
 }
 
-function validateDefaultProjectSelect() {
+function validateDefaultProjectSelect(firstTime) {
   let isDefaultOptionSelected = $("#project-settings-options-container select option:selected")[0].disabled;
-  if (isDefaultOptionSelected) {
+  if (firstTime || isDefaultOptionSelected) {
     showProjectRequired();
     return false;
   } else {

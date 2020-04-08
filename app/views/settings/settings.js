@@ -19,6 +19,7 @@ $('#submit').on('click', function () {
     showProjectRequired(true);
   }, function () {
     showSuccessAlert();
+    validateDefaultProjectSelect();
   });
 
 });
@@ -48,7 +49,7 @@ function initialize() {
     $("#proj-select").val(`${defaultOrgId}/${defaultProjId}`);
   }
   showDefaultProjectSelect();
-  validateDefaultProjectSelect();
+  validateDefaultProjectSelect(!(defaultOrgId || defaultProjId));
 }
 
 function showDefaultProjectSelect() {
@@ -56,9 +57,9 @@ function showDefaultProjectSelect() {
   $("#project-settings-options-container").removeClass("d-none");
 }
 
-function validateDefaultProjectSelect() {
+function validateDefaultProjectSelect(firstTime) {
   let isDefaultOptionSelected = $("#project-settings-options-container select option:selected")[0].disabled;
-  if (isDefaultOptionSelected) {
+  if (firstTime || isDefaultOptionSelected) {
     showProjectRequired();
     return false;
   } else {

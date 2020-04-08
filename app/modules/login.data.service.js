@@ -3,6 +3,7 @@ import {AppStatusKeys} from "./app.status.keys.js";
 import {StorageService} from "./storage.service.js";
 import {ApiDataService} from "./api.data.service.js";
 import {StorageConstants} from "./storage.constants.js";
+import {AppConfig} from "./app.config.js";
 
 export class LoginDataService {
   constructor() {
@@ -87,6 +88,16 @@ export class LoginDataService {
         const loggedIn = self.handleResponse(response);
         loggedInFunction(loggedIn);
       });
+    }
+  }
+
+  logout(openQuireRevokePage) {
+    StorageService.clearAllStorage();
+    // wait for storage to clear
+    if (openQuireRevokePage) {
+      setTimeout(function () {
+        window.open(AppConfig.quireAppSettingsUrl);
+      }, 300);
     }
   }
 }

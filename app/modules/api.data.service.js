@@ -48,9 +48,9 @@ export class ApiDataService {
   // POST TO QUIRE
   static postTaskIntoProject(task, project_id) {
     const url = ApiConfig.postNewTaskUrl.replace("{projectId}", project_id);
-    // const defaultOrgName = StorageService.readLocal('default_org_name');
-    const defaultProjName = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME);
-    const defaultProjUrl = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_URL);
+    const allProjects = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
+    const defaultProjName = allProjects[project_id].name;
+    const defaultProjUrl = allProjects[project_id].url;
     return new Promise((resolve) => {
       ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(response) {
         // alert(`New task #${response.id} added to ${defaultProjName}`);
@@ -116,7 +116,7 @@ export class ApiDataService {
     }
   }
 
-  // HTML MANIPULATION
+  // HTML INJECTION
   static fillSelectMenu(projects, projSelect) {
     let allProjects = {};
     const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
@@ -158,7 +158,6 @@ export class ApiDataService {
 
   static getProjectFromSelectMenuAndSave(serializedArray, projectRequiredCallback, successCallback) {
     const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
-    const allProjects = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
     // compile into one object
     let formData = [];
     for (const i in serializedArray) {
@@ -171,11 +170,7 @@ export class ApiDataService {
       const orgId = orgIdProjId[0];
       const projId = orgIdProjId[1];
       const orgName = allOrgs[orgId] ? allOrgs[orgId].name : null;
-      const projName = allProjects[projId].name;
-      const projUrl = allProjects[projId].url;
       StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID, projId);
-      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_NAME, projName);
-      StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_URL, projUrl);
       StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID, orgId);
       if (orgName) {
         StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME, orgName);
