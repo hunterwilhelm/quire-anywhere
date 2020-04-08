@@ -73,7 +73,6 @@ function onInstalledHandler() {
   setInterval(ChromeService.registerContextMenuItems, oneHourInMilliseconds);
   ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
   ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
-  ChromeService.registerNotificationOnClickListener(onNotificationClickedHandler);
   quireRefreshTokenExpiredChecker();
 }
 
@@ -145,12 +144,6 @@ function quireRefreshTokenExpiredChecker() {
       loginDataService.attemptRefreshToken(responseHandler);
     }
   }, 1000 * 10);
-}
-
-function onNotificationClickedHandler(notificationId) {
-  if (notificationId && notificationId !== "") {
-    chrome.tabs.create({url: notificationId});
-  }
 }
 
 chrome.contextMenus.onClicked.addListener(onContextMenuClickedHandler);

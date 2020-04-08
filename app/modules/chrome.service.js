@@ -60,9 +60,18 @@ export class ChromeService {
         chrome.notifications.create(url, options);
     }
 
-    static registerNotificationOnClickListener(notificationIdCallback) {
+    static registerNotificationOnClickListener() {
+        // TODO: .hasListeners() only returns true if the listener has been registered from that page
+        // my hack is to just register the notification listener right before the notification is created
         if (!chrome.notifications.onClicked.hasListeners()) {
-            chrome.notifications.onClicked.addListener(notificationIdCallback);
+            chrome.notifications.onClicked.addListener(this.onNotificationClickedHandler);
+        }
+    }
+
+    static onNotificationClickedHandler(notificationId) {
+        if (notificationId && notificationId !== "") {
+            chrome.tabs.create({url: notificationId});
+            chrome.notifications.clear(notificationId);
         }
     }
 }
