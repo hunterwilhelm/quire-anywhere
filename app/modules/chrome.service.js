@@ -14,7 +14,11 @@ export class ChromeService {
     }
 
     static async buildContextMenuItems() {
-        const contextMenuIds = JSON.parse(StorageService.readLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS));
+        let contextMenuIds = JSON.parse(StorageService.readLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS));
+        if (!contextMenuIds) {
+            contextMenuIds = {};
+        }
+
         const availableContextMenuTypes = Object.values(ChromeConstants.CONTEXT_MENU_TYPES);
         for (const contextMenuType of availableContextMenuTypes) {
             const contextMenuId = contextMenuIds[contextMenuType];

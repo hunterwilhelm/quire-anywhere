@@ -111,8 +111,10 @@ function checkIfLoggedIn() {
   loginDataService.isLoggedIn(function (loggedIn) {
     if (loggedIn) {
       console.log("logged in");
-      loadQuireData();
-      showLoggedIn();
+      loadQuireData().then(function () {
+        showLoggedIn();
+        initialize();
+      });
     } else {
       showLogIn();
       setTimeout(checkIfLoggedIn, 1000);
@@ -163,55 +165,67 @@ $("#close-edit-project").on('click', function() {
   hideChooseProjectContainer();
 });
 
+// save on quit (add event listener does not work fast enough here)
+
 const projectSelect = $('#proj-select');
 projectSelect
     .on('change', hideProjectRequired)
-    .on('blur', save);
+    .on('blur', handleSaveEvent);
 const submitButton = $('#submit');
-submitButton.on('click', save);
-function save() {
+submitButton.on('click', handleSaveEvent);
+function handleSaveEvent() {
   const mouseOverButton = $('#close-edit-project').is(':hover') || submitButton.is(':hover');
   const mouseOutsideChooseProjectContainer = !$('#choose-project-container').is(':hover');
   if (mouseOverButton || mouseOutsideChooseProjectContainer) {
-    const serializedArray = $('#settings-form').serializeArray();
-    ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
-        function () {
-          showProjectRequired(true);
-        }, function () {
-          hideChooseProjectContainer();
-          showProjectTable();
-          showSuccessAlert();
-          showPopulateDefaultTable();
-        }
-    );
+    save();
   } else {
     projectSelect.focus();
   }
 }
+// expedited the save process onblur so chrome doesn't kill the js before it saves
+window.onblur = save;
+function save() {
+  const serializedArray = $('#settings-form').serializeArray();
+  ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
+      function () {
+        showProjectRequired(true);
+      }, function () {
+        hideChooseProjectContainer();
+        showProjectTable();
+        showSuccessAlert();
+        showPopulateDefaultTable();
+      }
+  );
+}
 
-function loadQuireData() {
-  // load organizations
-  ApiDataService.getAllOrganizations(function(orgs) {
-    let allOrgs = {};
-    for (let i in orgs) {
-      allOrgs[orgs[i].oid] = orgs[i];
-    }
-    StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
+async function loadQuireData() {
+  const organizationsPromise = new Promise((resolve) => {
+    ApiDataService.getAllOrganizations(function(orgs) {
+      let allOrgs = {};
+      for (let i in orgs) {
+        allOrgs[orgs[i].oid] = orgs[i];
+      }
+      StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
+      resolve();
+    });
   });
-
-  // load projects
-  ApiDataService.getAllProjects(function (projects) {
-    if (projects && projects.response) {
-      loginDataService.attemptRefreshToken(function(loggedIn) {
-        if (!loggedIn) {
-          loginDataService.logout(false);
-        }
-      })
-    } else {
-      ApiDataService.fillSelectMenu(projects, $("#proj-select"));
-      initialize();
-    }
+  const projectsPromise = new Promise((resolve, reject) => {
+    // load projects
+    ApiDataService.getAllProjects(function (projects) {
+      if (projects && projects.response) {
+        loginDataService.attemptRefreshToken(function(loggedIn) {
+          if (!loggedIn) {
+            loginDataService.logout(false);
+            reject();
+          }
+        })
+      } else {
+        ApiDataService.fillSelectMenu(projects, $("#proj-select"));
+        resolve();
+      }
+    });
   });
+  return Promise.all([organizationsPromise, projectsPromise]);
 }
 
 
@@ -302,3 +316,4 @@ function showProjectTable() {
 
 // register Context Menu again
 ChromeService.registerContextMenuItems();
+
