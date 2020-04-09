@@ -163,13 +163,16 @@ $("#close-edit-project").on('click', function() {
   hideChooseProjectContainer();
 });
 
-$('#proj-select')
+const projectSelect = $('#proj-select');
+projectSelect
     .on('change', hideProjectRequired)
     .on('blur', save);
-$('#submit').on('click', ()=>{save(true)});
-function save(clicked) {
-  // don't save if they are about to click the cancel button
-  if (clicked || !($('#close-edit-project').is(':hover') || $('#choose-project-container').is(':hover'))) {
+const submitButton = $('#submit');
+submitButton.on('click', save);
+function save() {
+  const mouseOverButton = $('#close-edit-project').is(':hover') || submitButton.is(':hover');
+  const mouseOutsideChooseProjectContainer = !$('#choose-project-container').is(':hover');
+  if (mouseOverButton || mouseOutsideChooseProjectContainer) {
     const serializedArray = $('#settings-form').serializeArray();
     ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
         function () {
@@ -181,6 +184,8 @@ function save(clicked) {
           showPopulateDefaultTable();
         }
     );
+  } else {
+    projectSelect.focus();
   }
 }
 
