@@ -4,6 +4,7 @@ import {ApiHttpService} from "./api.http.service.js";
 import {Task} from "../models/task.model.js";
 import {StorageConstants} from "./storage.constants.js";
 import {ChromeService} from "./chrome.service.js";
+import {ApiFormatterService} from "./api.formatter.service.js";
 
 export class ApiDataService {
   constructor() {}
@@ -65,7 +66,7 @@ export class ApiDataService {
   static addPageTask(info, tab) {
     console.log("Adding page to Quire...");
     const proj_id = this.getDefaultProjectId();
-    let task = new Task(tab.title, tab.url);
+    let task = new Task(ApiFormatterService.formatHyperlink(tab.title, tab.url), ApiFormatterService.formatHyperlink(tab.url));
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log(`Page url: ${info.pageUrl}`);
@@ -79,7 +80,7 @@ export class ApiDataService {
     console.log("Adding selection to Quire...");
 
     const proj_id = this.getDefaultProjectId();
-    let task = new Task(info.selectionText, "From: " + tab.url);
+    let task = new Task(info.selectionText, "From: " + ApiFormatterService.formatHyperlink(tab.url));
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log("Text: " + info.selectionText);
@@ -93,7 +94,10 @@ export class ApiDataService {
     console.log("Adding link to Quire...");
 
     const proj_id = this.getDefaultProjectId();
-    let task = new Task(info.linkUrl, "From: " + tab.url);
+    let task = new Task(
+        ApiFormatterService.formatHyperlink(info.linkUrl, tab.url),
+        "From: " + ApiFormatterService.formatHyperlink(tab.url)
+    );
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log("Link: " + info.linkUrl);
