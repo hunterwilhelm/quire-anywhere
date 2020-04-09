@@ -1,30 +1,15 @@
-import {ApiDataService} from "./modules/api.data.service.js";
-import {LoginDataService} from "./modules/login.data.service.js";
-import {StorageService} from "./modules/storage.service.js";
-import {ChromeService} from "./modules/chrome.service.js";
-import {AppStatusKeys} from "./modules/app.status.keys.js";
-import {StorageConstants} from "./modules/storage.constants.js";
-import {ChromeConstants} from "./modules/chrome.constants.js";
+import {ApiDataService} from "../../modules/api.data.service.js";
+import {LoginDataService} from "../../modules/login.data.service.js";
+import {StorageService} from "../../modules/storage.service.js";
+import {ChromeService} from "../../modules/chrome.service.js";
+import {AppStatusKeys} from "../../modules/app.status.keys.js";
+import {StorageConstants} from "../../modules/storage.constants.js";
+import {ChromeConstants} from "../../modules/chrome.constants.js";
+import {UpdateService} from "../../modules/update.service.js";
 
 
-StorageService.readAllLocal(function(localArray) {
-  console.log(">> Loading Chrome's Local Storage to Local Storage");
-  if (localArray) { // don't loop over null
-    for (const item in localArray) {
-      console.log(item, localArray[item]);
-      localStorage.setItem('local.' + item, localArray[item]);
-    }
-  }
-});
-StorageService.readAllSync(function(syncArray) {
-  console.log(">> Loading Chrome's Sync Storage to Local Storage");
-  if (syncArray) { // don't loop over null
-    for (const item in syncArray) {
-      console.log(item, syncArray[item]);
-      localStorage.setItem('sync.' + item, syncArray[item]);
-    }
-  }
-});
+StorageService.readAllFromStorage().then(UpdateService.updateLocalStorage);
+
 function onContextMenuClickedHandler(info, tab) {
   const loginDataService = new LoginDataService();
   loginDataService.isLoggedIn(function(loggedIn) {
@@ -66,9 +51,7 @@ function onContextMenuClickedHandler(info, tab) {
 
 const oneMinuteInMilliseconds = 60*1000;
 function onInstalledHandler() {
-  StorageService.saveSync("color", '#57a73a', function() {
-    console.log(">> Quire anywhere extension installed correctly!");
-  });
+  console.log(">> Quire anywhere extension installed correctly!");
   ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
   ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
   quireRefreshTokenExpiredChecker();

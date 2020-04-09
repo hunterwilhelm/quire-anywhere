@@ -98,4 +98,12 @@ export class ChromeService {
             chrome.notifications.clear(notificationId);
         }
     }
+
+    static getVersion() {
+        return chrome.runtime.getManifest().version;
+    }
+
+    static getVersionName() {
+        return chrome.runtime.getManifest().version_name;
+    }
 }

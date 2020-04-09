@@ -186,7 +186,7 @@ function handleSaveEvent() {
 window.onblur = save;
 function save() {
   const serializedArray = $('#settings-form').serializeArray();
-  ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
+  ApiDataService.saveProjectAndOrganizationFromSelectMenuAsDefaultIds(serializedArray,
       function () {
         showProjectRequired(true);
       }, function () {

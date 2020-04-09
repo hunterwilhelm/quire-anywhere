@@ -152,8 +152,7 @@ export class ApiDataService {
     StorageService.saveLocal(StorageConstants.QUIRE.ALL_PROJECTS, JSON.stringify(allProjects));
   }
 
-  static getProjectFromSelectMenuAndSave(serializedArray, projectRequiredCallback, successCallback) {
-    const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
+  static saveProjectAndOrganizationFromSelectMenuAsDefaultIds(serializedArray, projectRequiredCallback, successCallback) {
     // compile into one object
     let formData = [];
     for (const i in serializedArray) {
@@ -165,12 +164,8 @@ export class ApiDataService {
       const orgIdProjId = formData['org-id/proj-id'].split('/');
       const orgId = orgIdProjId[0];
       const projId = orgIdProjId[1];
-      const orgName = allOrgs[orgId] ? allOrgs[orgId].name : null;
       StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID, projId);
       StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID, orgId);
-      if (orgName) {
-        StorageService.saveLocal(StorageConstants.SETTINGS.DEFAULT_ORG_NAME, orgName);
-      }
       successCallback();
     }
   }

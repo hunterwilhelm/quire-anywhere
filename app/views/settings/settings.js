@@ -4,7 +4,7 @@ import {StorageConstants} from "../../modules/storage.constants.js";
 import {ChromeService} from "../../modules/chrome.service.js";
 
 
-$('#version').text(chrome.runtime.getManifest().version_name);
+$('#version').text(StorageService.getVersionName());
 
 $('#proj-select').on('change', function () {
   hideProjectRequired();
@@ -13,8 +13,8 @@ $('#proj-select').on('change', function () {
 $('#submit').on('click', function () {
   const serializedArray = $('#settings-form').serializeArray();
   console.log(serializedArray);
-  console.log(ApiDataService.getProjectFromSelectMenuAndSave);
-  ApiDataService.getProjectFromSelectMenuAndSave(serializedArray,
+  console.log(ApiDataService.saveProjectAndOrganizationFromSelectMenuAsDefaultIds);
+  ApiDataService.saveProjectAndOrganizationFromSelectMenuAsDefaultIds(serializedArray,
       function () {
     showProjectRequired(true);
   }, function () {

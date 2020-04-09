@@ -12,7 +12,7 @@
     "http://zicy.net/*"
   ],
   "background": {
-    "page": "background.html"
+    "page": "./views/background/background.html"
   },
   "browser_action": {
     "default_title": "Quire Anywhere",

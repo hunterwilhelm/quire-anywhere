@@ -14,9 +14,7 @@ export class StorageConstants {
     };
     static SETTINGS = {
         DEFAULT_ORG_ID: "default_org_id",
-        DEFAULT_ORG_NAME: "default_org_name",
         DEFAULT_PROJ_ID: "default_proj_id",
-        DEFAULT_PROJ_NAME: "default_proj_name",
         DEFAULT_PROJ_URL: "default_proj_url",
     };
     static LOGIN = {
@@ -27,6 +25,7 @@ export class StorageConstants {
     static TRUE = "true";
     static FALSE = "false";
     static CONFIG = {
-        CONTEXT_MENU_IDS: 'config.context_menu_ids'
+        CONTEXT_MENU_IDS: 'config.context_menu_ids',
+        LAST_KNOWN_VERSION: 'config.last_known_version',
     };
 }

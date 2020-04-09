@@ -57,6 +57,16 @@ export class StorageService {
     chrome.storage.local.get(null, arrayFunction);
   }
 
+  static removeLocal(key) {
+    localStorage.removeItem(key);
+    chrome.storage.local.remove(key);
+  }
+
+  static removeSync(key) {
+    localStorage.removeItem(key);
+    chrome.storage.sync.remove(key);
+  }
+
   static clearLocal() {
     chrome.storage.local.clear();
   }
@@ -67,6 +77,34 @@ export class StorageService {
 
   static clearLocalStorage() {
     localStorage.clear();
+  }
+
+  static async readAllFromStorage() {
+    const localPromise = new Promise(resolve => {
+      this.readAllLocal(function(localArray) {
+        console.log(">> Loading Chrome's Local Storage to Local Storage");
+        if (localArray && Array.isArray(localArray)) { // don't loop over null
+          for (const item in localArray) {
+            console.log(item, localArray[item]);
+            localStorage.setItem('local.' + item, localArray[item]);
+          }
+        }
+        resolve();
+      });
+    });
+    const syncPromise = new Promise(resolve => {
+      this.readAllSync(function(syncArray) {
+        console.log(">> Loading Chrome's Sync Storage to Local Storage");
+        if (syncArray && Array.isArray(syncArray)) { // don't loop over null
+          for (const item in syncArray) {
+            console.log(item, syncArray[item]);
+            localStorage.setItem('sync.' + item, syncArray[item]);
+          }
+        }
+        resolve();
+      });
+    });
+    return Promise.all([localPromise, syncPromise]);
   }
 
   static clearAllStorage() {
