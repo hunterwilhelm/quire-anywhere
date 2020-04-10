@@ -11,6 +11,7 @@
     "https://zicy.net/*",
     "http://zicy.net/*"
   ],
+  "options_page": "./views/settings/settings.html",
   "background": {
     "page": "./views/background/background.html"
   },

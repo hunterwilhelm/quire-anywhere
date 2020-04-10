@@ -3,6 +3,7 @@ import {TranslationConfig} from "./translation.config.js";
 import {ChromeConstants} from "./chrome.constants.js";
 import {StorageService} from "./storage.service.js";
 import {StorageConstants} from "./storage.constants.js";
+import {ApiDataService} from "./api.data.service.js";
 
 export class ChromeService {
 
@@ -69,19 +70,22 @@ export class ChromeService {
         }
     }
 
-    static createNotification(url, title, description) {
+    static createNotification(id, title, description) {
         this.registerNotificationOnClickListener();
         console.log('-----CREATE NOTIFICATION------');
         const options = {
             type: "basic",
             title: `Quire Anywhere - ${title}`,
             message: description,
+            buttons: [{
+                title: `Undo`
+            }],
             iconUrl: "/images/quire-anywhere-128-opaque.png",
             silent: true,
         };
         console.log(options);
         console.log('------------------------------');
-        chrome.notifications.create(url, options);
+        chrome.notifications.create(id, options);
     }
 
     static registerNotificationOnClickListener() {
@@ -90,12 +94,31 @@ export class ChromeService {
         if (!chrome.notifications.onClicked.hasListeners()) {
             chrome.notifications.onClicked.addListener(this.onNotificationClickedHandler);
         }
+        // button listeners
+        if (!chrome.notifications.onButtonClicked.hasListeners()) {
+            chrome.notifications.onButtonClicked.addListener(this.onNotificationButtonClickedHandler);
+        }
     }
 
-    static onNotificationClickedHandler(notificationId) {
-        if (notificationId && notificationId !== "") {
-            chrome.tabs.create({url: notificationId});
-            chrome.notifications.clear(notificationId);
+    static onNotificationClickedHandler(oid) {
+        if (oid && oid !== "") {
+            chrome.tabs.create({url: StorageService.getAddedTaskUrlFromHistoryByOid(oid)});
+            chrome.notifications.clear(oid);
+        }
+    }
+
+
+    static onNotificationButtonClickedHandler(oid, buttonIndex) {
+        // assuming undo is the only button clicked
+        if (oid && oid !== "") {
+            ApiDataService.deleteTaskByOid(oid).then(() => {
+                    // success
+                    console.log("success");
+                }, (error) => {
+                    // error
+                    console.log("failure", error);
+                }
+            );
         }
     }
 

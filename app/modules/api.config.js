@@ -11,4 +11,7 @@ export class ApiConfig {
   // POST
   // static postNewTaskUrl = this.apiUrl + '/task/id/{projectId}'; // 404
   static postNewTaskUrl = this.apiUrl + '/task/{projectId}';
+
+  // DELETE
+  static deleteTaskByOidUrl = this.apiUrl + '/task/{taskOid}'
 }

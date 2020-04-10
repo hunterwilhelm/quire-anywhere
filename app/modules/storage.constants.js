@@ -28,4 +28,7 @@ export class StorageConstants {
         CONTEXT_MENU_IDS: 'config.context_menu_ids',
         LAST_KNOWN_VERSION: 'config.last_known_version',
     };
+    static HISTORY = {
+        ADDED_TASK_URL_MAP: 'history.added_task_url_map',
+    }
 }

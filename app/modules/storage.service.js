@@ -120,4 +120,28 @@ export class StorageService {
       return key.replace('local.', '').replace('sync.', '');
     }
   }
+
+  static addTaskToHistory(task) {
+    if (task && task.oid) {
+      let addedTasksHistory = StorageService.readLocal(StorageConstants.HISTORY.ADDED_TASK_URL_MAP);
+      if (addedTasksHistory) {
+        addedTasksHistory = JSON.parse(addedTasksHistory)
+      } else {
+        addedTasksHistory = {};
+      }
+      addedTasksHistory[task.oid] = task.url;
+      StorageService.saveLocal(StorageConstants.HISTORY.ADDED_TASK_URL_MAP, JSON.stringify(addedTasksHistory));
+    }
+  }
+
+  static getAddedTaskUrlFromHistoryByOid(oid) {
+    let addedTasksHistory = StorageService.readLocal(StorageConstants.HISTORY.ADDED_TASK_URL_MAP);
+    if (addedTasksHistory && oid) {
+      addedTasksHistory = JSON.parse(addedTasksHistory);
+      if(addedTasksHistory[oid]) {
+        return addedTasksHistory[oid];
+      }
+    }
+    return null;
+  }
 }

@@ -49,12 +49,11 @@ export class ApiDataService {
     const url = ApiConfig.postNewTaskUrl.replace("{projectId}", project_id);
     const allProjects = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
     const defaultProjName = allProjects[project_id].name;
-    const defaultProjUrl = allProjects[project_id].url;
     return new Promise((resolve) => {
-      ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(response) {
-        // alert(`New task #${response.id} added to ${defaultProjName}`);
+      ApiHttpService.postToQuire(url, this.getToken(), "Bearer", task.toJSON(),function(task) {
+        StorageService.addTaskToHistory(task);
         ChromeService.createNotification(
-            `${defaultProjUrl}/${response.id}`,
+            task.oid,
             `Task added`,
             `to ${defaultProjName}\nClick to open`
         );
@@ -62,6 +61,21 @@ export class ApiDataService {
       });
     });
   }
+
+  static deleteTaskByOid(taskOid) {
+    const url = ApiConfig.deleteTaskByOidUrl.replace("{taskOid}", taskOid);
+    const token = this.getToken();
+    return new Promise(async function (resolve, reject) {
+      const response = await ApiHttpService.deleteToQuire(url, token);
+      if (response.ok) {
+        resolve();
+      } else {
+        console.warn(`Failed to delete task by OID: ${taskOid}`)
+        reject(response);
+      }
+    });
+  }
+
   // ADD (and then post)
   static addPageTask(info, tab) {
     console.log("Adding page to Quire...");
