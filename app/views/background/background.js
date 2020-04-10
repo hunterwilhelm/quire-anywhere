@@ -134,5 +134,5 @@ function quireRefreshTokenExpiredChecker() {
 
 chrome.contextMenus.onClicked.addListener(onContextMenuClickedHandler);
 chrome.runtime.onInstalled.addListener(onInstalledHandler);
-
+chrome.runtime.onStartup.addListener(onInstalledHandler);
 
