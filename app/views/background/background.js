@@ -50,10 +50,14 @@ function onContextMenuClickedHandler(info, tab) {
 }
 
 const oneMinuteInMilliseconds = 60*1000;
-function onInstalledHandler() {
+function setupListenersAndCheckers() {
   console.log(">> Quire anywhere extension installed correctly!");
+  console.log(">> Registering onQuireStateChangeHandler...");
   ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
+  console.log(">> Registering onQuireExpiresInHandler...");
+  resetQuireStateChangeHandler();
   ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
+  console.log(">> Starting quireRefreshTokenExpiredChecker...");
   quireRefreshTokenExpiredChecker();
 
   ChromeService.registerContextMenuItems();
@@ -62,6 +66,9 @@ function onInstalledHandler() {
   }, oneMinuteInMilliseconds);
 }
 
+function resetQuireStateChangeHandler() {
+  StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, false);
+}
 function onQuireStateChangeHandler() {
   const attemptingLogin = StorageService.readLocal(StorageConstants.LOGIN.ATTEMPTING);
   if (!(attemptingLogin === StorageConstants.TRUE)) {
@@ -133,6 +140,6 @@ function quireRefreshTokenExpiredChecker() {
 }
 
 chrome.contextMenus.onClicked.addListener(onContextMenuClickedHandler);
-chrome.runtime.onInstalled.addListener(onInstalledHandler);
-chrome.runtime.onStartup.addListener(onInstalledHandler);
+chrome.runtime.onInstalled.addListener(setupListenersAndCheckers);
+chrome.runtime.onStartup.addListener(setupListenersAndCheckers);
 
