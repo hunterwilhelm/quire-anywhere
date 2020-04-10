@@ -108,11 +108,17 @@ export class StorageService {
   }
 
   static clearAllStorage() {
+    // to avoid duplicate context menu items ...
+    const contextMenuIds = this.readLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS);
+
     // fire off event before clearing data
     this.saveLocal(StorageConstants.QUIRE.LOGGED_IN, StorageConstants.FALSE);
     this.clearLocalStorage();
     this.clearLocal();
     this.clearLocalStorage();
+
+    // ... preserve context menu ids
+    this.saveLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS, contextMenuIds);
   }
 
   static getStorageKeyFromEventKey(key) {
