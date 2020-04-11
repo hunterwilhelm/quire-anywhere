@@ -9,62 +9,83 @@
   <script src="../../libraries/bootstrap.min.js"></script>
 </head>
 <body>
+<!-- NAVIGATION -->
 <nav class="navbar navbar-expand-md navbar-light bg-light">
   <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Project Settings</a>
+      <li class="nav-item col-md-3 pt-2">
+        <img src="../../images/quire-anywhere-128-clear.png" class="img-fluid" alt="">
+      </li>
+      <li class="nav-item active border-left p-2">
+        <a class="nav-link">Quire Anywhere</a>
       </li>
     </ul>
   </div>
   <div class="mx-auto order-0">
-    <a class="navbar-brand mx-auto" href="#">Quire Anywhere</a>
+    <a class="navbar-brand mx-auto">Project Settings</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
       <span class="navbar-toggler-icon"></span>
     </button>
   </div>
   <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link"><span id="version"></span></a>
+      </li>
+    </ul>
   </div>
 </nav>
-<div class="container">
+<div class="container col-6">
+  <!-- CHOOSE PROJECT -->
   <form id="settings-form">
     <div class="row">
-      <div class="col-sm-5">
+      <div class="col-12">
         <h3 class="border-bottom p-2">
           Choose Project
         </h3>
       </div>
     </div>
     <div class="project-settings row">
-      <div class="col-sm-5">
-        <div class="custom-control custom-radio m-2">
-          <input type="radio" class="custom-control-input" id="default-project-one-default" name="project" value="one-default" checked>
-          <label class="custom-control-label" for="default-project-one-default">One Default Project</label>
+      <div class="col-12">
+        <h5 class="cover-heading">One Default Project</h5>
+        <!-- LOADING SPINNER -->
+        <div class="w-100" id="loading-container">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
         </div>
-        <label>
-          <select name="org-id/proj-id" id="proj-select"  class="custom-select custom-select-sm">
-            <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
-          </select>
-        </label>
-        <div class="alert alert-info small w-75" role="alert">
-          All tasks will be sent to this project
-        </div>
-      </div>
-      <div class="col-sm-5 border-left d-none">
-        <div class="custom-control custom-radio m-2">
-          <input type="radio" class="custom-control-input" id="default-project-choose-every-time" name="project" value="one-default">
-          <label class="custom-control-label" for="default-project-choose-every-time">Choose Every Time</label>
-        </div>
-        <div class="alert alert-warning small w-75" role="alert">
-          To be added in the future
+        <!-- PROJECT SELECT -->
+        <div id="project-settings-options-container" class="d-none">
+          <label class="w-100">
+            <div class="input-group mb-3">
+              <select class="custom-select" name="org-id/proj-id" id="proj-select">
+                <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
+              </select>
+              <div class="input-group-append">
+                <button id="submit" class="btn btn-outline-secondary" type="button">Save</button>
+              </div>
+            </div>
+          </label>
+          <div class="alert-list">
+            <div id="project-description" class="alert alert-info small w-100 d-none" role="alert">
+              All tasks will be sent to this project
+            </div>
+            <div id="project-required" class="alert alert-danger small w-100 d-none" role="alert">
+              Please select a project in order to begin.
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </form>
   <br>
   <div class="row">
-    <div class="col-sm-1">
-      <button type="button" class="btn btn-primary ml-2" id="submit">Save</button>
+    <div class="col-12">
+      <div id="success-alert" class="alert alert-success small w-50 d-none" role="alert">
+        <b>Success:</b> Settings have been saved!
+      </div>
     </div>
   </div>
 </div>

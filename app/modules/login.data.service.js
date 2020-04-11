@@ -2,6 +2,8 @@ import {LoginHttpService} from "./login.http.service.js";
 import {AppStatusKeys} from "./app.status.keys.js";
 import {StorageService} from "./storage.service.js";
 import {ApiDataService} from "./api.data.service.js";
+import {StorageConstants} from "./storage.constants.js";
+import {AppConfig} from "./app.config.js";
 
 export class LoginDataService {
   constructor() {
@@ -12,20 +14,20 @@ export class LoginDataService {
   handleResponse(response) {
     console.log(response);
     if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
-      StorageService.saveLocal("quire_access_token", response.access_token, function(){
-        console.log("successfully saved quire_access_token");
+      StorageService.saveLocal(StorageConstants.QUIRE.ACCESS_TOKEN, response.access_token, function(){
+        console.log(`successfully saved ${StorageConstants.QUIRE.ACCESS_TOKEN}`);
       });
-      StorageService.saveLocal("quire_refresh_token", response.refresh_token, function(){
-        console.log("successfully saved quire_refresh_token");
+      StorageService.saveLocal(StorageConstants.QUIRE.REFRESH_TOKEN, response.refresh_token, function(){
+        console.log(`successfully saved ${StorageConstants.QUIRE.REFRESH_TOKEN}`);
       });
       // number of seconds that it will last
-      StorageService.saveLocal("quire_expires_in", response.expires_in, function(){
-        console.log("successfully saved quire_expires_in");
+      StorageService.saveLocal(StorageConstants.QUIRE.EXPIRES_IN, response.expires_in, function(){
+        console.log(`successfully saved ${StorageConstants.QUIRE.EXPIRES_IN}`);
       });
-      StorageService.saveLocal("quire_expires_in_date", ApiDataService.getExpireInAsDate(response.expires_in), function(){
-        console.log("successfully saved quire_expires_in");
+      StorageService.saveLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE, ApiDataService.getExpireInAsDateString(response.expires_in), function(){
+        console.log(`successfully saved ${StorageConstants.QUIRE.EXPIRES_IN_DATE}`);
       });
-      StorageService.saveLocal("quire_logged_in",true);
+      StorageService.saveLocal(StorageConstants.QUIRE.LOGGED_IN,true);
       return true;
     } else {
       return false;
@@ -37,8 +39,8 @@ export class LoginDataService {
       console.log(quire_state);
       let self = this;
       LoginHttpService.postState(quire_state,function(response) {
-        thenFunction(response);
         self.handleResponse(response);
+        thenFunction(response);
       });
     } else {
       console.error("Failed to load quire state");
@@ -46,7 +48,7 @@ export class LoginDataService {
   }
 
   attemptLogin(thenFunction) {
-    const quireState = StorageService.readLocal('quire_state');
+    const quireState = StorageService.readLocal(StorageConstants.QUIRE.STATE);
     if (quireState) {
       this.loadLoginData(quireState, thenFunction);
     } else {
@@ -55,17 +57,17 @@ export class LoginDataService {
   }
 
   saveState(thenFunction) {
-    StorageService.saveLocal('quire_state', this._loginHttpService.state, thenFunction);
+    StorageService.saveLocal(StorageConstants.QUIRE.STATE, this._loginHttpService.state, thenFunction);
   }
 
   isLoggedIn(loggedInFunction) {
-    const quire_logged_in = StorageService.readLocal('quire_logged_in');
+    const quire_logged_in = StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN);
     if (quire_logged_in) {
-      const quire_expires_in_date = StorageService.readLocal('quire_expires_in_date');
+      const quire_expires_in_date = StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE);
       if (quire_expires_in_date
-          && (new Date(quire_expires_in_date)) <= (new Date())
-          || quire_expires_in_date.includes("[object Object]")) {
+          && (new Date(quire_expires_in_date)) <= (new Date())) {
         // access token expired
+        console.log(quire_expires_in_date);
         this.attemptRefreshToken(loggedInFunction);
       } else {
         loggedInFunction(quire_logged_in);
@@ -77,15 +79,25 @@ export class LoginDataService {
 
   attemptRefreshToken(loggedInFunction) {
     console.info("refreshing token...");
-    const quire_state = StorageService.readLocal('quire_state');
+    const quire_state = StorageService.readLocal(StorageConstants.QUIRE.STATE);
     if (quire_state !== undefined) {
       console.log(quire_state);
-      const refreshToken = StorageService.readLocal('quire_refresh_token');
+      const refreshToken = StorageService.readLocal(StorageConstants.QUIRE.REFRESH_TOKEN);
       let self = this;
       LoginHttpService.postRefresh(quire_state, refreshToken, function(response) {
         const loggedIn = self.handleResponse(response);
         loggedInFunction(loggedIn);
       });
+    }
+  }
+
+  logout(openQuireRevokePage) {
+    StorageService.clearAllStorage();
+    // wait for storage to clear
+    if (openQuireRevokePage) {
+      setTimeout(function () {
+        window.open(AppConfig.quireAppSettingsUrl);
+      }, 300);
     }
   }
 }

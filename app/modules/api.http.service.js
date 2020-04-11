@@ -45,4 +45,14 @@ export class ApiHttpService {
       }
     }
   }
+
+  static async deleteToQuire(url, token) {
+    const params = {
+      "headers": {
+        "Authorization": `Bearer ${token}`
+      },
+      "method": "DELETE"
+    };
+    return fetch(url, params);
+  }
 }

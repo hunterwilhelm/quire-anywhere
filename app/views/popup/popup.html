@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="../../libraries/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="../../libraries/fontawesome.all.min.js" crossorigin="anonymous"></script>
   <script src="../../libraries/jquery.min.js"></script>
   <script src="../../libraries/bootstrap.min.js"></script>
 
@@ -13,17 +13,25 @@
   <script type="module" src="../../modules/app.utils.js"></script>
   <link rel="stylesheet" href="popup.css"/>
 </head>
-<body class="login">
+<body>
 <nav class="navbar navbar-light navbar-expand bg-light justify-content-md-center justify-content-start">
-  <a class="navbar-brand d-md-none d-inline" href="">Quire Anywhere</a>
+  <div class="container w-25 float-left justify-content-center">
+    <img src="../../images/quire-anywhere-128-clear.png" class="img-fluid mh-100" alt="">
+  </div>
+  <a class="navbar-brand d-md-none d-inline ml-1 w-100 text-center">Quire Anywhere</a>
   <div class="navbar-collapse collapse justify-content-between align-items-center w-100" id="collapsingNavbar2">
     <ul class="navbar-nav mx-auto text-md-center text-left">
     </ul>
-    <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap">
-      <a id="open-settings" type="button" class="disabled"><li class="nav-item"><i class="fa fa-cog fa-2x"  aria-hidden="true" style="color: #AAA;"></i></li></a>
+    <ul class="nav navbar-nav flex-row justify-content-md-center justify-content-start flex-nowrap m-2">
+      <a  id="open-settings" type="button" class="disabled" title="Settings">
+        <li class="nav-item">
+          <i class="fa fa-cog fa-2x text-secondary"  aria-hidden="true"></i>
+        </li>
+      </a>
     </ul>
   </div>
 </nav>
+<!-- WARN LIST -->
 <div id="success-warn" class="alert alert-success alert-dismissible fade show m-3 d-none">
   <span id="success-warn-body"></span>
   <button type="button" class="close alert-close">&times;</button>
@@ -36,29 +44,99 @@
   <span id="warning-warn-body"></span>
   <button type="button" class="close alert-close">&times;</button>
 </div>
-<div class="container h-100" id="login-container" >
+<!-- LOADING SPINNER -->
+<div class="container h-100" id="loading-container">
   <div class="row h-100 justify-content-center align-items-center">
-    <button id="login-button" class="btn btn-primary align-self-center" ><i class="fa fa-sign-in" aria-hidden="true"></i> Sign into Quire</button>
+    <div id="loading-spinner" class="spinner-border text-success" role="status"><span class="sr-only">Loading...</span></div>
   </div>
 </div>
+<!-- LOGIN -->
+<div class="container h-100 d-none" id="login-container" >
+  <div class="row h-100 justify-content-center align-items-center">
+    <button id="login-button" class="btn btn-primary align-self-center" ><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Sign in to Quire</button>
+  </div>
+</div>
+<!-- MENU -->
 <div class="container d-none" id="logged-in-container">
+  <!--  TABLE -->
   <div id="table-container" class="d-none">
-    <div class="row">
-      <div class="col-6">
-        <h6 class="border-bottom p-2">Organization</h6>
-        <p id="default-org" class="pl-2"></p>
+    <table id="default-project-table" class="table">
+      <thead>
+      <tr>
+        <th scope="col">Organization</th>
+        <th scope="col">
+          Project
+          <a id="edit-project" type="button" class="disabled float-right" title="Edit Project">
+            <i class="fa fa-edit fa-lg text-secondary"  aria-hidden="true"></i>
+          </a>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td id="default-org"></td>
+        <td id="default-proj"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="choose-project-container" class="d-none">
+    <table class="table" >
+      <thead>
+      <tr>
+        <th scope="col">Choose Project</th>
+        <th scope="col">
+          <a id="close-edit-project" type="button" class="disabled float-right" title="Close Edit Project">
+            <i class="fa fa-times fa-lg text-secondary"  aria-hidden="true"></i>
+          </a>
+        </th>
+      </tr>
+      </thead>
+    </table>
+
+    <!-- PROJECT SELECT -->
+    <form id="settings-form">
+      <div id="project-settings-options-container">
+        <label class="w-100">
+          <div class="input-group mb-3">
+            <select class="custom-select" name="org-id/proj-id" id="proj-select">
+              <option id="proj-option-default" disabled="disabled" selected="selected" class="d-none">Select Project</option>
+            </select>
+            <div class="input-group-append">
+              <button id="submit" class="btn btn-outline-secondary" type="button">Save</button>
+            </div>
+          </div>
+        </label>
+        <div class="alert-list">
+          <div id="project-required" class="alert alert-danger small w-100 d-none" role="alert">
+            Please select a project in order to begin.
+          </div>
+        </div>
       </div>
-      <div class="col-6">
-        <h6 class="border-bottom p-2">Project</h6>
-        <p id="default-proj" class="pl-2"></p>
+    </form>
+  </div>
+  <!-- ADD TASK -->
+  <div class="d-none" id="add-task-container">
+    <div class="input-group mb-3">
+      <input type="text" class="form-control">
+      <div class="input-group-append">
+        <button class="btn btn-secondary" type="button">Add Task</button>
+      </div>
+    </div>
+    <div class="container d-none" id="task-cannot-be-blank-warn">
+      <div class="alert alert-danger fade show">
+        <span id="empty-task-warn-body">Error: Add Task field cannot be blank</span>
       </div>
     </div>
   </div>
-  <span id="access-token"></span>
+  <div id="success-alert" class="alert alert-success small w-100 d-none" role="alert">
+    <b>Success:</b> Settings have been saved!
+  </div>
+<!--  <span id="access-token"></span>-->
   <div class="row justify-content-center m-3">
     <div class="text-center">
       <!--<button class="btn btn-outline-warning" id="get-token">Show Token</button>-->
-      <button class="btn btn-outline-dark" id="logout-button">Log Out</button>
+      <button class="btn btn-outline-secondary" id="logout-button">Log Out</button>
     </div>
   </div>
 </div>

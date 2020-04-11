@@ -1,10 +1,13 @@
 import {AppStatusKeys} from "./app.status.keys.js";
 
-export class TranslationConfig extends AppStatusKeys {
+class TranslationKeys extends AppStatusKeys {
   static CONTEXT_MENU = "context-menu";
   static AUTHENTICATION_RESPONSE = "authentication-response";
   static SETTINGS = "settings";
-  static _translations = {
+}
+
+export class TranslationConfig extends TranslationKeys {
+  static english_translations = {
     [this.CONTEXT_MENU]: {
       "selection": "selected text",
       "page": "this page",
