@@ -9,7 +9,8 @@
     "storage",
     "https://quire.io/*",
     "https://zicy.net/*",
-    "http://zicy.net/*"
+    "http://zicy.net/*",
+    "https://docs.google.com/*"
   ],
   "options_page": "./views/settings/settings.html",
   "background": {
@@ -25,6 +26,20 @@
       "128": "images/quire-anywhere-128-opaque.png"
     }
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://docs.google.com/*"
+      ],
+      "js": [
+        "scripts/content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    "modules/app.utils.js"
+  ],
   "icons": {
     "16": "images/quire-anywhere-16-clear.png",
     "32": "images/quire-anywhere-32-clear.png",
