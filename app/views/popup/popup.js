@@ -24,16 +24,20 @@ function showPopulateDefaultTable() {
   }
 }
 
+let registeredShowSetupAddTaskInput = false;
 function showSetupAddTaskInput() {
   $("#add-task-container").removeClass("d-none");
   const addTaskInput = $("#add-task-container input");
-  $("#add-task-container button").on("click", sendTaskHandler);
-  addTaskInput.on('keyup', validateAddTaskInput);
-  addTaskInput.on('keyup', function(e) {
-    if(e.keyCode === 13) {
-      sendTaskHandler();
-    }
-  });
+  if (!registeredShowSetupAddTaskInput) {
+    $("#add-task-container button").on("click", sendTaskHandler);
+    addTaskInput.on('keyup', validateAddTaskInput);
+    addTaskInput.on('keyup', function(e) {
+      if(e.keyCode === 13) {
+        sendTaskHandler();
+      }
+    });
+    registeredShowSetupAddTaskInput = true;
+  }
   addTaskInput.select();
 }
 
