@@ -147,10 +147,7 @@ settingsButton.on('click', function() {
 });
 
 document.querySelector("#login-button").addEventListener("click", function () {
-  // Ask a Quire User to Grant Access to Your Application
-  loginDataService.saveState(function () {
-    window.open(loginDataService.authUrl);
-  });
+  loginDataService.askQuireToGrantAccess();
 });
 
 // hide instead of delete warns

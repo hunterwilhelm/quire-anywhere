@@ -14,13 +14,8 @@ function onContextMenuClickedHandler(info, tab) {
   const loginDataService = new LoginDataService();
   loginDataService.isLoggedIn(function(loggedIn) {
     if (!loggedIn) {
-      const state = StorageService.readLocal(StorageConstants.QUIRE.STATE);
-      if (state) {
-        // unlikely
-        alert("Please finish logging in by clicking on the chrome extension again");
-      } else {
-        alert("Please log in first\nClick on the chrome extension to sign in to Quire");
-      }
+      // ignores what the state was and attempts a new one
+      loginDataService.askQuireToGrantAccess();
       return;
     }
     const org = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
@@ -80,6 +75,8 @@ function onQuireStateChangeHandler() {
     StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.TRUE);
     StorageService.saveLocal(StorageConstants.LOGIN.ID, attemptingLoginId);
     StorageService.saveLocal(StorageConstants.LOGIN.TRIES, 100);
+  } else {
+    console.log("Could not attempt login attemptingLogin: " + attemptingLogin);
   }
 }
 

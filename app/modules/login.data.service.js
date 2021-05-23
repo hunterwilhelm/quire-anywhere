@@ -100,6 +100,12 @@ export class LoginDataService {
       }, 300);
     }
   }
+
+  askQuireToGrantAccess() {
+    this.saveState(() => {
+      window.open(this.authUrl);
+    });
+  }
 }
 
 
