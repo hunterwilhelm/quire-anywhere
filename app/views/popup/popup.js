@@ -6,15 +6,15 @@ import {TranslationConfig} from "../../modules/translation.config.js";
 import {ChromeService} from "../../modules/chrome.service.js";
 import {StorageConstants} from "../../modules/storage.constants.js";
 import {Task} from "../../models/task.model.js";
+import {AppUtils} from "../../modules/app.utils.js";
 
 function showPopulateDefaultTable() {
-  const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
-  const defaultOrgId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
   const allProjects = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
   const defaultProjectId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
   if (allProjects && defaultProjectId && allProjects[defaultProjectId]) {
-    const orgName = defaultOrgId ? allOrgs[defaultOrgId]? allOrgs[defaultOrgId].name : "Not Accessible" : "Not Accessible";
-    const projName = allProjects[defaultProjectId].name;
+    const defaultProject = allProjects[defaultProjectId];
+    const orgName = defaultProject?.organization?.name ?? "None";
+    const projName = AppUtils.formatProjectName(defaultProject.oid, defaultProject.name);
     $('#default-org').html(orgName);
     $('#default-proj').html(projName);
     $('#table-container').removeClass('d-none');
@@ -147,10 +147,7 @@ settingsButton.on('click', function() {
 });
 
 document.querySelector("#login-button").addEventListener("click", function () {
-  // Ask a Quire User to Grant Access to Your Application
-  loginDataService.saveState(function () {
-    window.open(loginDataService.authUrl);
-  });
+  loginDataService.askQuireToGrantAccess();
 });
 
 // hide instead of delete warns
