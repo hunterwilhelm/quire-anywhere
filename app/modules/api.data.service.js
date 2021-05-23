@@ -5,6 +5,7 @@ import {Task} from "../models/task.model.js";
 import {StorageConstants} from "./storage.constants.js";
 import {ChromeService} from "./chrome.service.js";
 import {ApiFormatterService} from "./api.formatter.service.js";
+import {AppUtils} from "./app.utils.js";
 
 export class ApiDataService {
   constructor() {}
@@ -135,17 +136,15 @@ export class ApiDataService {
   // HTML INJECTION
   static fillSelectMenu(projects, projSelect) {
     let allProjects = {};
-    const allOrgs = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS));
-
-
-    for (let i in projects) {
-      allProjects[projects[i].oid] = projects[i];
+    for (const p of projects) {
+      allProjects[p.oid] = p;
     }
-    for (const i in projects) {
+    console.log(projects);
+    for (const p of projects) {
       const option = document.createElement("option");
-      const org = allOrgs[projects[i].organization];
-      const projId = projects[i].oid;
-      const projName = projects[i].name;
+      const org = p.organization;
+      const projId = p.oid;
+      const projName = AppUtils.formatProjectName(projId, p.name);
       if (org) {
         const orgId = org.oid;
         const orgName = org.name;
@@ -153,9 +152,8 @@ export class ApiDataService {
         option.value = `${orgId}/${projId}`;
         projSelect.append(option);
       } else if (projId && projName) {
-        const orgId = projects[i].organization;
         option.text = `${projName}`;
-        option.value = `${orgId}/${projId}`;
+        option.value = `/${projId}`;
         projSelect.append(option);
       } else {
         alert("Could not load any projects, please sign in!");
@@ -163,7 +161,8 @@ export class ApiDataService {
     }
     projSelect.html(projSelect.find('option').sort(function(x, y) {
       if ($(x).disabled) return -1;
-      return $(x).text() > $(y).text() ? 1 : -1;
+      if (AppUtils.isProjectOidMyTasks($(x).val().split("/")[1])) return -1;
+      return $(x).text().toLowerCase() > $(y).text().toLowerCase() ? 1 : -1;
     }));
 
 
