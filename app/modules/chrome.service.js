@@ -67,6 +67,15 @@ export class ChromeService {
                     newValueCallback(e.newValue);
                 }
             });
+            chrome.storage.onChanged.addListener(function(changes) {
+                // this function seems to fire twice, I don't know why
+                for(const key in changes) {
+                    const newStorageKey = StorageService.getStorageKeyFromEventKey(key);
+                    if (newStorageKey === storageKey) {
+                        newValueCallback(changes[key].newValue);
+                    }
+                }
+            });
         }
     }
 
