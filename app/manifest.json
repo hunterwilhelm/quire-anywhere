@@ -38,7 +38,9 @@
     }
   ],
   "web_accessible_resources": [
-    "modules/app.utils.js"
+    "modules/content.utils.js",
+    "modules/google.docs.utils.js",
+    "images/quire-anywhere-16-clear.png"
   ],
   "icons": {
     "16": "images/quire-anywhere-16-clear.png",

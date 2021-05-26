@@ -78,13 +78,13 @@ export class ApiDataService {
   }
 
   // ADD (and then post)
-  static addPageTask(info, tab) {
+  static addPageTask(tab) {
     console.log("Adding page to Quire...");
     const proj_id = this.getDefaultProjectId();
     let task = new Task(ApiFormatterService.formatHyperlink(tab.title, tab.url), ApiFormatterService.formatHyperlink(tab.url));
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
-    console.log(`Page url: ${info.pageUrl}`);
+    console.log(`Page url: ${tab.url}`);
     console.log(`Page title: ${tab.title}`);
     console.log(`Access token: ${this._accessToken}`);
     console.log("org_id" + this.getDefaultOrganizationId());
@@ -95,11 +95,11 @@ export class ApiDataService {
     console.log("Adding selection to Quire...");
 
     const proj_id = this.getDefaultProjectId();
-    let task = new Task(info.selectionText, "From: " + ApiFormatterService.formatHyperlink(tab.url));
+    let task = new Task(info.selectionText, "From: " + ApiFormatterService.formatHyperlink(tab.title, tab.url));
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log("Text: " + info.selectionText);
-    console.log("From: " + info.pageUrl);
+    console.log("From: " + tab.url);
     console.log(`Access token: ${this._accessToken}`);
     console.log("org_id" + this.getDefaultOrganizationId());
     console.log(`proj_id: ${proj_id}`);
@@ -111,12 +111,12 @@ export class ApiDataService {
     const proj_id = this.getDefaultProjectId();
     let task = new Task(
         ApiFormatterService.formatHyperlink(info.linkUrl, tab.url),
-        "From: " + ApiFormatterService.formatHyperlink(tab.url)
+        "From: " + ApiFormatterService.formatHyperlink(tab.title, tab.url)
     );
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log("Link: " + info.linkUrl);
-    console.log("From: " + info.pageUrl);
+    console.log("From: " + tab.url);
     console.log(`Access token: ${this._accessToken}`);
     console.log("org_id" + this.getDefaultOrganizationId());
     console.log(`proj_id: ${proj_id}`);
@@ -139,7 +139,6 @@ export class ApiDataService {
     for (const p of projects) {
       allProjects[p.oid] = p;
     }
-    console.log(projects);
     for (const p of projects) {
       const option = document.createElement("option");
       const org = p.organization;
