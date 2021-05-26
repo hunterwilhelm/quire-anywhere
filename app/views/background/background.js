@@ -31,7 +31,7 @@ function onContextMenuClickedHandler(info, tab) {
     console.log("tab: ", tab);
     switch (info.menuItemId) {
       case contextMenuEntries[ChromeConstants.CONTEXT_MENU_TYPES.PAGE]:
-        ApiDataService.addPageTask(info, tab);
+        ApiDataService.addPageTask(tab);
         break;
       case contextMenuEntries[ChromeConstants.CONTEXT_MENU_TYPES.SELECTION]:
         ApiDataService.addSelectionTask(info, tab);
@@ -54,6 +54,8 @@ function setupListenersAndCheckers() {
   ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
   console.log(">> Starting quireRefreshTokenExpiredChecker...");
   quireRefreshTokenExpiredChecker();
+  console.log(">> registerContentOnMessageListeners...");
+  ChromeService.registerContentOnMessageListeners();
 
   ChromeService.registerContextMenuItems();
   setInterval(function() {

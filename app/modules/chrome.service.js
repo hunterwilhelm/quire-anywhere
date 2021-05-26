@@ -131,6 +131,17 @@ export class ChromeService {
         }
     }
 
+    static registerContentOnMessageListeners() {
+        console.log(">> Registering onAddSelectionTaskEventHandler...");
+        chrome.runtime.onMessage.addListener(ChromeService.onAddSelectionTaskEventHandler);
+    }
+
+    static onAddSelectionTaskEventHandler(request, sender) {
+        if (request.addSelectionTask) {
+            ApiDataService.addSelectionTask({selectionText: request.addSelectionTask}, sender.tab);
+        }
+    }
+
     static getVersion() {
         return chrome.runtime.getManifest().version;
     }
