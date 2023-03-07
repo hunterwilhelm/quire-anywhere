@@ -81,7 +81,8 @@ export class ApiDataService {
   static addPageTask(tab) {
     console.log("Adding page to Quire...");
     const proj_id = this.getDefaultProjectId();
-    let task = new Task(ApiFormatterService.formatHyperlink(tab.title, tab.url), ApiFormatterService.formatHyperlink(tab.url));
+    // let task = new Task(ApiFormatterService.formatHyperlink(tab.title, tab.url), ApiFormatterService.formatHyperlink(tab.url));
+    let task = new Task(tab.title, tab.url);
     ApiDataService.postTaskIntoProject(task, proj_id);
     // debug
     console.log(`Page url: ${tab.url}`);
