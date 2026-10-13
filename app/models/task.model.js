@@ -13,7 +13,7 @@ export class Task {
 
   constructor(name, description) {
     this._data['name'] = name;
-    this._data['description'] = description + "\n\n Quire Anywhere Chrome Extension";
+    this._data['description'] = description + "\n\n Quire Anywhere";
   }
 
   setRecurring() {
@@ -31,6 +31,10 @@ export class Task {
 
   setStartDate() {
     this._data["start"] = "2018-12-20T00:00:00.000Z";
+  }
+
+  addFields(fields) {
+    Object.assign(this._data, fields);
   }
 
   setData(data) {

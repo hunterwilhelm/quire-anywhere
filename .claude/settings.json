@@ -1,0 +1,41 @@
+{
+  "model": "sonnet",
+  "effortLevel": "medium",
+  "permissions": {
+    "deny": [
+      "Read(./quire-anywhere/app.secret.php*)",
+      "Edit(./quire-anywhere/app.secret.php*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git push*)",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-publish-checklist.sh\""
+          },
+          {
+            "type": "command",
+            "if": "Bash(gh pr create*)",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-publish-checklist.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(gh pr create*)",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-pr-review.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

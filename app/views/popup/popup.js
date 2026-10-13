@@ -8,9 +8,9 @@ import {StorageConstants} from "../../modules/storage.constants.js";
 import {Task} from "../../models/task.model.js";
 import {AppUtils} from "../../modules/app.utils.js";
 
-function showPopulateDefaultTable() {
-  const allProjects = JSON.parse(StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
-  const defaultProjectId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+async function showPopulateDefaultTable() {
+  const allProjects = JSON.parse(await StorageService.readLocal(StorageConstants.QUIRE.ALL_PROJECTS));
+  const defaultProjectId = await StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
   if (allProjects && defaultProjectId && allProjects[defaultProjectId]) {
     const defaultProject = allProjects[defaultProjectId];
     const orgName = defaultProject?.organization?.name ?? "None";
@@ -41,10 +41,10 @@ function showSetupAddTaskInput() {
   addTaskInput.select();
 }
 
-function sendTaskHandler() {
+async function sendTaskHandler() {
   const addTaskInput = $("#add-task-container input");
   if (validateAddTaskInput(true)) {
-    const projId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+    const projId = await StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
     let task = new Task(addTaskInput.val(), "From: Add Task Box");
     ApiDataService.postTaskIntoProject(task, projId).then((taskSucceeded)=>{
       if (taskSucceeded) {
@@ -94,12 +94,12 @@ function hideAddTaskFieldRequired() {
       .addClass("btn-success");
 }
 
-function showLoggedIn() {
+async function showLoggedIn() {
   $("#logged-in-container").removeClass('d-none');
   $("#login-container").addClass('d-none');
   $("#loading-container").addClass('d-none');
   $("#open-settings").removeClass('disabled');
-  showPopulateDefaultTable();
+  await showPopulateDefaultTable();
 }
 
 function showLogIn() {
@@ -115,9 +115,9 @@ function checkIfLoggedIn() {
   loginDataService.isLoggedIn(function (loggedIn) {
     if (loggedIn) {
       console.log("logged in");
-      loadQuireData().then(function () {
-        showLoggedIn();
-        initialize();
+      loadQuireData().then(async function () {
+        await showLoggedIn();
+        await initialize();
       });
     } else {
       showLogIn();
@@ -129,8 +129,8 @@ checkIfLoggedIn();
 
 const getTokenButton = document.querySelector('#get-token');
 if (getTokenButton) {
-  getTokenButton.addEventListener('click', function () {
-    document.querySelector('#access-token').innerHTML = ApiDataService.getToken();
+  getTokenButton.addEventListener('click', async function () {
+    document.querySelector('#access-token').innerHTML = await ApiDataService.getToken();
   });
 }
 
@@ -201,18 +201,18 @@ function save() {
 
 async function loadQuireData() {
   const organizationsPromise = new Promise((resolve) => {
-    ApiDataService.getAllOrganizations(function(orgs) {
+    ApiDataService.getAllOrganizations(async function(orgs) {
       let allOrgs = {};
       for (let i in orgs) {
         allOrgs[orgs[i].oid] = orgs[i];
       }
-      StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
+      await StorageService.saveLocal(StorageConstants.QUIRE.ALL_ORGANIZATIONS, JSON.stringify(allOrgs));
       resolve();
     });
   });
   const projectsPromise = new Promise((resolve, reject) => {
     // load projects
-    ApiDataService.getAllProjects(function (projects) {
+    ApiDataService.getAllProjects(async function (projects) {
       if (projects && projects.response) {
         loginDataService.attemptRefreshToken(function(loggedIn) {
           if (!loggedIn) {
@@ -221,7 +221,7 @@ async function loadQuireData() {
           }
         })
       } else {
-        ApiDataService.fillSelectMenu(projects, $("#proj-select"));
+        await ApiDataService.fillSelectMenu(projects, $("#proj-select"));
         resolve();
       }
     });
@@ -230,11 +230,11 @@ async function loadQuireData() {
 }
 
 
-function initialize() {
+async function initialize() {
 
 
-  const defaultProjId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
-  const defaultOrgId = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
+  const defaultProjId = await StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+  const defaultOrgId = await StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
 
   if (defaultOrgId && defaultProjId) {
     $("#proj-select").val(`${defaultOrgId}/${defaultProjId}`);

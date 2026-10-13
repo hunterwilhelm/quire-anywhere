@@ -26,21 +26,26 @@ export class LoginHttpService {
     this.post(url, formData, responseFunction);
   }
 
-  static post(url, formData, thenFunction) {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", url, true);
-    xhr.send(formData);
-    xhr.onload = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        try {
-          const json = JSON.parse(xhr.responseText);
-          thenFunction(json);
-        } catch (error) {
-          thenFunction(AppConfig.jsonError);
-        }
-      } else {
-        thenFunction(AppConfig.httpError);
+  static async post(url, formData, thenFunction) {
+    let response;
+    try {
+      // the relay identifies the login attempt by its session cookie
+      response = await fetch(url, {method: "POST", body: formData, credentials: "include"});
+    } catch (error) {
+      thenFunction(AppConfig.httpError);
+      return;
+    }
+    if (response.status === 200) {
+      let json;
+      try {
+        json = await response.json();
+      } catch (error) {
+        thenFunction(AppConfig.jsonError);
+        return;
       }
+      thenFunction(json);
+    } else {
+      thenFunction(AppConfig.httpError);
     }
   }
 }

@@ -1,7 +1,7 @@
 /*
  update.service.js: Handles updates
 
- localStorage is preserved between updates
+ chrome.storage is preserved between updates
  */
 
 
@@ -10,9 +10,9 @@ import {StorageConstants} from "./storage.constants.js";
 import {ChromeService} from "./chrome.service.js";
 
 export class UpdateService {
-    static updateLocalStorage() {
+    static async updateLocalStorage() {
 
-        const lastKnownVersion = StorageService.readLocal(StorageConstants.CONFIG.LAST_KNOWN_VERSION);
+        const lastKnownVersion = await StorageService.readLocal(StorageConstants.CONFIG.LAST_KNOWN_VERSION);
         const currentVersion = ChromeService.getVersion();
 
         // Update 0.1.6 to 0.2.0
@@ -25,25 +25,25 @@ export class UpdateService {
 
             // erase:
             // sync.color: "#57a73a"
-            StorageService.removeLocal("sync.color");
+            await StorageService.removeSync("color");
 
             // erase:
             // local.quire_expires_in_date: "[object Object]",
-            StorageService.removeLocal("local.quire_expires_in_date");
+            await StorageService.removeLocal("quire_expires_in_date");
 
             // erase:
             // local.default_proj_name: "..."
-            StorageService.removeLocal("local.default_proj_name");
+            await StorageService.removeLocal("default_proj_name");
 
             // erase:
             // local.default_org_name: "..."
-            StorageService.removeLocal("local.default_org_name");
+            await StorageService.removeLocal("default_org_name");
 
 
             console.log(`>> Updated to ${currentVersion}!`);
         }
 
 
-        StorageService.saveLocal(StorageConstants.CONFIG.LAST_KNOWN_VERSION, currentVersion);
+        await StorageService.saveLocal(StorageConstants.CONFIG.LAST_KNOWN_VERSION, currentVersion);
     }
 }

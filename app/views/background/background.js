@@ -7,24 +7,26 @@ import {StorageConstants} from "../../modules/storage.constants.js";
 import {ChromeConstants} from "../../modules/chrome.constants.js";
 import {UpdateService} from "../../modules/update.service.js";
 
-
-StorageService.readAllFromStorage().then(UpdateService.updateLocalStorage);
+const REFRESH_ALARM = "refreshToken";
+const LOGIN_POLL_MILLISECONDS = 1000;
+const LOGIN_MAX_TRIES = 100;
+const REFRESH_RETRY_MINUTES = 1;
 
 function onContextMenuClickedHandler(info, tab) {
   const loginDataService = new LoginDataService();
-  loginDataService.isLoggedIn(function(loggedIn) {
+  loginDataService.isLoggedIn(async function(loggedIn) {
     if (!loggedIn) {
       // ignores what the state was and attempts a new one
       loginDataService.askQuireToGrantAccess();
       return;
     }
-    const org = StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
-    const proj =  StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
+    const org = await StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
+    const proj = await StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_PROJ_ID);
     if (!(org && proj)) {
-      window.open(chrome.runtime.getURL('/views/settings/settings.html'));
+      chrome.tabs.create({url: chrome.runtime.getURL('/views/settings/settings.html')});
       return;
     }
-    const contextMenuEntries = JSON.parse(StorageService.readLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS));
+    const contextMenuEntries = JSON.parse(await StorageService.readLocal(StorageConstants.CONFIG.CONTEXT_MENU_IDS));
     console.log("-------------INFO----------------");
     console.log("contextMenuEntries: ", contextMenuEntries);
     console.log("info: ", info);
@@ -44,101 +46,84 @@ function onContextMenuClickedHandler(info, tab) {
   });
 }
 
-const oneMinuteInMilliseconds = 60*1000;
-function setupListenersAndCheckers() {
+// Runs on install and browser startup. Listeners are not registered here: a service worker must register them at load.
+async function setup() {
   console.log(">> Quire anywhere extension installed correctly!");
-  console.log(">> Registering onQuireStateChangeHandler...");
-  ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
-  console.log(">> Registering onQuireExpiresInHandler...");
-  resetQuireStateChangeHandler();
-  ChromeService.registerStorageListener(onQuireExpiresInHandler, StorageConstants.QUIRE.EXPIRES_IN);
-  console.log(">> Starting quireRefreshTokenExpiredChecker...");
-  quireRefreshTokenExpiredChecker();
-  console.log(">> registerContentOnMessageListeners...");
-  ChromeService.registerContentOnMessageListeners();
-
+  await UpdateService.updateLocalStorage();
+  await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, false);
+  // alarms may not survive a browser restart
+  scheduleTokenRefresh(await StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE));
   ChromeService.registerContextMenuItems();
-  setInterval(function() {
-    ChromeService.registerContextMenuItems();
-  }, oneMinuteInMilliseconds);
 }
 
-function resetQuireStateChangeHandler() {
-  StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, false);
-}
-function onQuireStateChangeHandler() {
-  const attemptingLogin = StorageService.readLocal(StorageConstants.LOGIN.ATTEMPTING);
-  if (!(attemptingLogin === StorageConstants.TRUE)) {
+async function onQuireStateChangeHandler() {
+  const attemptingLogin = await StorageService.readLocal(StorageConstants.LOGIN.ATTEMPTING);
+  if (attemptingLogin !== StorageConstants.TRUE) {
     console.log(">> Attempting login...");
-    let loginDataService = new LoginDataService();
-    const attemptingLoginId = setInterval(function () {
-          loginDataService.attemptLogin(responseHandler)
-    }, 1000);
-    StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.TRUE);
-    StorageService.saveLocal(StorageConstants.LOGIN.ID, attemptingLoginId);
-    StorageService.saveLocal(StorageConstants.LOGIN.TRIES, 100);
+    await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.TRUE);
+    await StorageService.saveLocal(StorageConstants.LOGIN.TRIES, LOGIN_MAX_TRIES);
+    pollLogin();
   } else {
     console.log("Could not attempt login attemptingLogin: " + attemptingLogin);
   }
 }
 
-function responseHandler(response) {
-  function onLoginHandler() {
+// Asks the relay for the token once a second until it has one or runs out of tries. The pending fetch and storage calls keep the
+// service worker alive meanwhile; an alarm can't fire this often.
+function pollLogin() {
+  new LoginDataService().attemptLogin(async function (response) {
+    await responseHandler(response);
+    if (await StorageService.readLocal(StorageConstants.LOGIN.ATTEMPTING) !== StorageConstants.TRUE) {
+      return;
+    }
+    const tries = parseInt(await StorageService.readLocal(StorageConstants.LOGIN.TRIES)) - 1;
+    console.log(">> Could not log in yet. tries left:", tries);
+    await StorageService.saveLocal(StorageConstants.LOGIN.TRIES, tries);
+    if (tries > 0) {
+      setTimeout(pollLogin, LOGIN_POLL_MILLISECONDS);
+    } else {
+      console.log(">> ERROR: Giving up on login");
+      await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.FALSE);
+    }
+  });
+}
+
+async function responseHandler(response) {
+  const alreadyLoggedIn = await StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN) === StorageConstants.TRUE;
+  if (alreadyLoggedIn || response?.status === AppStatusKeys.TOKEN_SUCCESS) {
     console.log(">> SUCCESS: Logged in successfully!");
-
-    const attemptingLoginId = parseInt(StorageService.readLocal(StorageConstants.LOGIN.ID));
-    clearInterval(attemptingLoginId);
-
-    StorageService.saveLocal(StorageConstants.QUIRE.REFRESH_TOKEN_EXPIRED, StorageConstants.FALSE);
-    StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.FALSE);
-    onQuireExpiresInHandler();
-  }
-
-  function onHttpErrorHandler() {
-    let tries = parseInt(StorageService.readLocal(StorageConstants.LOGIN.TRIES)) - 1;
-
-    console.log(">> ERROR: Could not log in yet. tries left:", tries);
-    StorageService.saveLocal(StorageConstants.LOGIN.TRIES, tries);
-  }
-
-  if (StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN) === StorageConstants.TRUE) {
-    onLoginHandler();
-  } else if (response) {
-    if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
-      onLoginHandler();
-    } else if (response.status === AppStatusKeys.HTTP_ERROR) {
-      onHttpErrorHandler();
-    }
+    await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.FALSE);
   }
 }
 
-
-function onQuireExpiresInHandler() {
-  const quireExpiresIn = parseInt(StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN));
-  if (quireExpiresIn) {
-    const quireExpiresInMilliseconds = quireExpiresIn * 1000;
-    console.log(">>> Setting up onQuireExpiresInHandler quireExpiresInMilliseconds:", quireExpiresInMilliseconds);
-    setTimeout(function () {
-      StorageService.saveLocal(StorageConstants.QUIRE.REFRESH_TOKEN_EXPIRED, StorageConstants.TRUE);
-    }, quireExpiresInMilliseconds);
+// Refreshes the token when it expires. Called with the new expiry date whenever it changes (undefined on logout).
+function scheduleTokenRefresh(expiresInDate) {
+  const when = expiresInDate ? new Date(expiresInDate).getTime() : NaN;
+  if (Number.isNaN(when)) {
+    chrome.alarms.clear(REFRESH_ALARM);
   } else {
-    console.log(">>> ERROR: Could not set up onQuireExpiresInHandler because quireExpiresIn:", quireExpiresIn);
+    console.log(">>> Scheduling token refresh for", expiresInDate);
+    chrome.alarms.create(REFRESH_ALARM, {when});
   }
 }
 
-
-function quireRefreshTokenExpiredChecker() {
-  setInterval(function () {
-    const refreshTokenExpired = StorageService.readLocal(StorageConstants.QUIRE.REFRESH_TOKEN_EXPIRED);
-    console.log(">> quireRefreshTokenExpiredChecker refreshTokenExpired:", refreshTokenExpired);
-    if (refreshTokenExpired === StorageConstants.TRUE) {
-      const loginDataService = new LoginDataService();
-      loginDataService.attemptRefreshToken(responseHandler);
-    }
-  }, 1000 * 10);
+function onAlarmHandler(alarm) {
+  if (alarm.name === REFRESH_ALARM) {
+    new LoginDataService().attemptRefreshToken(function (loggedIn) {
+      if (!loggedIn) {
+        console.log(">> ERROR: Could not refresh token, retrying...");
+        chrome.alarms.create(REFRESH_ALARM, {delayInMinutes: REFRESH_RETRY_MINUTES});
+      }
+    });
+  }
 }
 
+// All listeners are registered at load (required for MV3 service workers)
 chrome.contextMenus.onClicked.addListener(onContextMenuClickedHandler);
-chrome.runtime.onInstalled.addListener(setupListenersAndCheckers);
-chrome.runtime.onStartup.addListener(setupListenersAndCheckers);
-
+chrome.runtime.onInstalled.addListener(setup);
+chrome.runtime.onStartup.addListener(setup);
+chrome.alarms.onAlarm.addListener(onAlarmHandler);
+ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
+ChromeService.registerStorageListener(scheduleTokenRefresh, StorageConstants.QUIRE.EXPIRES_IN_DATE);
+ChromeService.registerContentOnMessageListeners();
+ChromeService.registerNotificationListeners();
