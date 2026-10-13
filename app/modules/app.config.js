@@ -1,8 +1,9 @@
 export class AppConfig {
   static clientId = 'HSP1ENUG8Zm9PK9zOxyLnxfP';
 
-  static redirectUri = 'http://zicy.net/quire-anywhere/callback.php';
-  static postUrl = 'http://zicy.net/quire-anywhere/callback.php';
+  static apiUrl = 'https://quire-anywhere.hunterwilhelm.com/api';
+  static tokenUrl = `${this.apiUrl}/token`;
+  static refreshUrl = `${this.apiUrl}/refresh`;
 
   static jsonError = {status: "json-error"};
   static httpError = {status: "http-error"};

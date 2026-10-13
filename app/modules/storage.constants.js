@@ -19,10 +19,6 @@ export class StorageConstants {
         TAG_ALIASES: "tag_aliases",  // legacy global list, migrated into ADAPTERS
         ADAPTERS: "adapter_settings",
     };
-    static LOGIN = {
-        ATTEMPTING: 'login_attempting',
-        TRIES: 'login_tries',
-    };
     static TRUE = "true";
     static FALSE = "false";
     static CONFIG = {
