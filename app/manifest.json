@@ -9,12 +9,12 @@
     "storage",
     "alarms",
     "activeTab",
-    "scripting"
+    "scripting",
+    "identity"
   ],
   "host_permissions": [
     "https://quire.io/*",
-    "https://zicy.net/*",
-    "http://zicy.net/*",
+    "https://quire-anywhere.hunterwilhelm.com/*",
     "https://docs.google.com/*",
     "https://api.augmentedsteam.com/*"
   ],

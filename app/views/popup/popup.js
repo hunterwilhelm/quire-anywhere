@@ -147,7 +147,7 @@ settingsButton.on('click', function() {
 });
 
 document.querySelector("#login-button").addEventListener("click", function () {
-  loginDataService.askQuireToGrantAccess();
+  chrome.runtime.sendMessage({login: true});
 });
 
 // hide instead of delete warns

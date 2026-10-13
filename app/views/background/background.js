@@ -2,22 +2,25 @@ import {ApiDataService} from "../../modules/api.data.service.js";
 import {LoginDataService} from "../../modules/login.data.service.js";
 import {StorageService} from "../../modules/storage.service.js";
 import {ChromeService} from "../../modules/chrome.service.js";
-import {AppStatusKeys} from "../../modules/app.status.keys.js";
 import {StorageConstants} from "../../modules/storage.constants.js";
 import {ChromeConstants} from "../../modules/chrome.constants.js";
 import {UpdateService} from "../../modules/update.service.js";
 
 const REFRESH_ALARM = "refreshToken";
-const LOGIN_POLL_MILLISECONDS = 1000;
-const LOGIN_MAX_TRIES = 100;
 const REFRESH_RETRY_MINUTES = 1;
+
+function onLoginRequestedHandler(request) {
+  if (request?.login) {
+    void new LoginDataService().askQuireToGrantAccess();
+  }
+}
 
 function onContextMenuClickedHandler(info, tab) {
   const loginDataService = new LoginDataService();
   loginDataService.isLoggedIn(async function(loggedIn) {
     if (!loggedIn) {
       // ignores what the state was and attempts a new one
-      loginDataService.askQuireToGrantAccess();
+      void loginDataService.askQuireToGrantAccess();
       return;
     }
     const org = await StorageService.readLocal(StorageConstants.SETTINGS.DEFAULT_ORG_ID);
@@ -50,50 +53,9 @@ function onContextMenuClickedHandler(info, tab) {
 async function setup() {
   console.log(">> Quire anywhere extension installed correctly!");
   await UpdateService.updateLocalStorage();
-  await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, false);
   // alarms may not survive a browser restart
   scheduleTokenRefresh(await StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE));
   ChromeService.registerContextMenuItems();
-}
-
-async function onQuireStateChangeHandler() {
-  const attemptingLogin = await StorageService.readLocal(StorageConstants.LOGIN.ATTEMPTING);
-  if (attemptingLogin !== StorageConstants.TRUE) {
-    console.log(">> Attempting login...");
-    await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.TRUE);
-    await StorageService.saveLocal(StorageConstants.LOGIN.TRIES, LOGIN_MAX_TRIES);
-    pollLogin();
-  } else {
-    console.log("Could not attempt login attemptingLogin: " + attemptingLogin);
-  }
-}
-
-// Asks the relay for the token once a second until it has one or runs out of tries. The pending fetch and storage calls keep the
-// service worker alive meanwhile; an alarm can't fire this often.
-function pollLogin() {
-  new LoginDataService().attemptLogin(async function (response) {
-    await responseHandler(response);
-    if (await StorageService.readLocal(StorageConstants.LOGIN.ATTEMPTING) !== StorageConstants.TRUE) {
-      return;
-    }
-    const tries = parseInt(await StorageService.readLocal(StorageConstants.LOGIN.TRIES)) - 1;
-    console.log(">> Could not log in yet. tries left:", tries);
-    await StorageService.saveLocal(StorageConstants.LOGIN.TRIES, tries);
-    if (tries > 0) {
-      setTimeout(pollLogin, LOGIN_POLL_MILLISECONDS);
-    } else {
-      console.log(">> ERROR: Giving up on login");
-      await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.FALSE);
-    }
-  });
-}
-
-async function responseHandler(response) {
-  const alreadyLoggedIn = await StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN) === StorageConstants.TRUE;
-  if (alreadyLoggedIn || response?.status === AppStatusKeys.TOKEN_SUCCESS) {
-    console.log(">> SUCCESS: Logged in successfully!");
-    await StorageService.saveLocal(StorageConstants.LOGIN.ATTEMPTING, StorageConstants.FALSE);
-  }
 }
 
 // Refreshes the token when it expires. Called with the new expiry date whenever it changes (undefined on logout).
@@ -120,10 +82,10 @@ function onAlarmHandler(alarm) {
 
 // All listeners are registered at load (required for MV3 service workers)
 chrome.contextMenus.onClicked.addListener(onContextMenuClickedHandler);
+chrome.runtime.onMessage.addListener(onLoginRequestedHandler);
 chrome.runtime.onInstalled.addListener(setup);
 chrome.runtime.onStartup.addListener(setup);
 chrome.alarms.onAlarm.addListener(onAlarmHandler);
-ChromeService.registerStorageListener(onQuireStateChangeHandler, StorageConstants.QUIRE.STATE);
 ChromeService.registerStorageListener(scheduleTokenRefresh, StorageConstants.QUIRE.EXPIRES_IN_DATE);
 ChromeService.registerContentOnMessageListeners();
 ChromeService.registerNotificationListeners();

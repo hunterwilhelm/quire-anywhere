@@ -8,80 +8,44 @@ import {AppConfig} from "./app.config.js";
 export class LoginDataService {
   constructor() {
     this._loginHttpService = new LoginHttpService();
-    this.authUrl = this._loginHttpService.authUrl;
   }
 
   async handleResponse(response) {
-    console.log(response);
     if (response.status === AppStatusKeys.TOKEN_SUCCESS) {
       await StorageService.saveLocal(StorageConstants.QUIRE.ACCESS_TOKEN, response.access_token);
       await StorageService.saveLocal(StorageConstants.QUIRE.REFRESH_TOKEN, response.refresh_token);
-      // number of seconds that it will last
       await StorageService.saveLocal(StorageConstants.QUIRE.EXPIRES_IN, response.expires_in);
-      await StorageService.saveLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE, ApiDataService.getExpireInAsDateString(response.expires_in));
+      await StorageService.saveLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE,
+          ApiDataService.getExpireInAsDateString(response.expires_in));
       await StorageService.saveLocal(StorageConstants.QUIRE.LOGGED_IN, true);
       return true;
-    } else {
-      return false;
     }
-  }
-
-  loadLoginData(quire_state, thenFunction) {
-    if (quire_state !== undefined) {
-      console.log(quire_state);
-      let self = this;
-      LoginHttpService.postState(quire_state, async function(response) {
-        await self.handleResponse(response);
-        thenFunction(response);
-      });
-    } else {
-      console.error("Failed to load quire state");
-    }
-  }
-
-  async attemptLogin(thenFunction) {
-    const quireState = await StorageService.readLocal(StorageConstants.QUIRE.STATE);
-    if (quireState) {
-      this.loadLoginData(quireState, thenFunction);
-    } else {
-      thenFunction(false);
-    }
-  }
-
-  async saveState(thenFunction) {
-    await StorageService.saveLocal(StorageConstants.QUIRE.STATE, this._loginHttpService.state);
-    thenFunction();
+    return false;
   }
 
   async isLoggedIn(loggedInFunction) {
-    const quire_logged_in = await StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN);
-    if (quire_logged_in) {
-      const quire_expires_in_date = await StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE);
-      if (quire_expires_in_date
-          && (new Date(quire_expires_in_date)) <= (new Date())) {
-        // access token expired
-        console.log(quire_expires_in_date);
+    const quireLoggedIn = await StorageService.readLocal(StorageConstants.QUIRE.LOGGED_IN);
+    if (quireLoggedIn) {
+      const expiresInDate = await StorageService.readLocal(StorageConstants.QUIRE.EXPIRES_IN_DATE);
+      if (expiresInDate && new Date(expiresInDate) <= new Date()) {
         this.attemptRefreshToken(loggedInFunction);
       } else {
-        loggedInFunction(quire_logged_in);
+        loggedInFunction(quireLoggedIn);
       }
     } else {
-      loggedInFunction(quire_logged_in);
+      loggedInFunction(quireLoggedIn);
     }
   }
 
   async attemptRefreshToken(loggedInFunction) {
-    console.info("refreshing token...");
-    const quire_state = await StorageService.readLocal(StorageConstants.QUIRE.STATE);
-    if (quire_state !== null) {
-      console.log(quire_state);
-      const refreshToken = await StorageService.readLocal(StorageConstants.QUIRE.REFRESH_TOKEN);
-      let self = this;
-      LoginHttpService.postRefresh(quire_state, refreshToken, async function(response) {
-        const loggedIn = await self.handleResponse(response);
-        loggedInFunction(loggedIn);
-      });
+    const refreshToken = await StorageService.readLocal(StorageConstants.QUIRE.REFRESH_TOKEN);
+    if (!refreshToken) {
+      loggedInFunction(false);
+      return;
     }
+    const response = await LoginHttpService.postRefresh(refreshToken);
+    const loggedIn = await this.handleResponse(response);
+    loggedInFunction(loggedIn);
   }
 
   async logout(openQuireRevokePage) {
@@ -91,11 +55,35 @@ export class LoginDataService {
     }
   }
 
-  askQuireToGrantAccess() {
-    this.saveState(() => {
-      chrome.tabs.create({url: this.authUrl});
-    });
+  async askQuireToGrantAccess() {
+    const redirectUri = chrome.identity.getRedirectURL();
+    const expectedState = this._loginHttpService.state;
+    await StorageService.saveLocal(StorageConstants.QUIRE.STATE, expectedState);
+
+    try {
+      const authResult = await new Promise(resolve => {
+        chrome.identity.launchWebAuthFlow({
+          url: this._loginHttpService.getAuthorizationUrl(redirectUri),
+          interactive: true,
+        }, responseUrl => {
+          resolve({responseUrl, error: chrome.runtime.lastError?.message});
+        });
+      });
+      if (authResult.error || !authResult.responseUrl) return false;
+
+      const callbackUrl = new URL(authResult.responseUrl);
+      if (callbackUrl.searchParams.get("state") !== expectedState) return false;
+      if (callbackUrl.searchParams.has("error")) return false;
+      const code = callbackUrl.searchParams.get("code");
+      if (!code) return false;
+
+      const response = await LoginHttpService.postCode(code, redirectUri);
+      return await this.handleResponse(response);
+    } catch (error) {
+      console.error("Quire sign-in failed:", error.message);
+      return false;
+    } finally {
+      await StorageService.removeLocal(StorageConstants.QUIRE.STATE);
+    }
   }
 }
-
-

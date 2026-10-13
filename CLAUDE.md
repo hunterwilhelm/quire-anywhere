@@ -9,9 +9,10 @@ Chrome extension that adds tasks to Quire.io from the current page, a link, or a
   `translation.*`, `update.service.js`), storage (`storage.service.js`), and site-specific extraction (`content.utils.js`,
   `google.docs.utils.js`); `app/models/` holds data models; `app/scripts/content.js` is the content-script entry point.
 - `app/libraries/` is vendored third-party code (jQuery, Bootstrap, Font Awesome). Never edit it.
-- `quire-anywhere/` is the PHP OAuth relay hosted on zicy.net. `app.secret.php` holds the client secret and is gitignored; never read,
-  print, or commit it.
-- No build step, package manager, or test suite. Verify by reloading the unpacked extension in `chrome://extensions`.
+- `quire-anywhere/` contains the TypeScript Vercel OAuth API. The client secret belongs in Vercel environment variables; never read,
+  print, or commit secret values.
+- `app/` has no build step or package manager; verify extension changes by reloading the unpacked extension in `chrome://extensions`.
+  The Vercel API under `quire-anywhere/` uses TypeScript and npm.
 
 ## Core rules
 - Ask before building only when a wrong guess would be expensive to undo; otherwise proceed and state the assumption.

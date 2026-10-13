@@ -1,3 +1,6 @@
 /.idea/*
+/quire-anywhere/.env*
 /quire-anywhere/app.secret.php
+/quire-anywhere/.vercel
+/quire-anywhere/node_modules/
 /tmp/
