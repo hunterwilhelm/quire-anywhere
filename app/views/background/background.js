@@ -9,9 +9,12 @@ import { UpdateService } from "../../modules/update.service.js";
 const REFRESH_ALARM = "refreshToken";
 const REFRESH_RETRY_MINUTES = 1;
 
-function onLoginRequestedHandler(request) {
+function onLoginRequestedHandler(request, sender, sendResponse) {
   if (request?.login) {
-    void new LoginDataService().askQuireToGrantAccess();
+    new LoginDataService().askQuireToGrantAccess()
+        .then(result => sendResponse({loginError: result === true ? "" : result}))
+        .catch(error => sendResponse({loginError: error.message || "Quire sign-in failed."}));
+    return true;
   }
 }
 

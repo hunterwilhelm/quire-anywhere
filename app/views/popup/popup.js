@@ -147,7 +147,20 @@ settingsButton.on('click', function() {
 });
 
 document.querySelector("#login-button").addEventListener("click", function () {
-  chrome.runtime.sendMessage({login: true});
+  const errorElement = document.querySelector("#login-error");
+  errorElement.textContent = "";
+  chrome.runtime.sendMessage({login: true}, response => {
+    if (chrome.runtime.lastError) {
+      errorElement.textContent = chrome.runtime.lastError.message;
+      return;
+    }
+    if (response?.loginError) {
+      const redirectUriError = "invalid_request: The 'redirect_uri' parameter does not match a valid url for the application.";
+      errorElement.textContent = response.loginError.includes(redirectUriError)
+          ? "The redirect URI is misconfigured, please contact a developer to fix it"
+          : response.loginError;
+    }
+  });
 });
 
 // hide instead of delete warns

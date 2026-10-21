@@ -1,4 +1,4 @@
-import type { ApiRequest, ApiResponse } from "./types";
+import type { ApiRequest, ApiResponse } from "./types.js";
 
 export const CLIENT_ID = "HSP1ENUG8Zm9PK9zOxyLnxfP";
 const TOKEN_URL = "https://quire.io/oauth/token";

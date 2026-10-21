@@ -59,30 +59,32 @@ export class LoginDataService {
     const redirectUri = chrome.identity.getRedirectURL();
     const expectedState = this._loginHttpService.state;
     await StorageService.saveLocal(StorageConstants.QUIRE.STATE, expectedState);
-
+    const url = this._loginHttpService.getAuthorizationUrl(redirectUri);
     try {
-      console.log(">> askQuireToGrantAccess: redirectUri: ", redirectUri);
-      const url = this._loginHttpService.getAuthorizationUrl(redirectUri);
-      console.log(">> askQuireToGrantAccess: url: ", url);
-      const authResponse = await chrome.identity.launchWebAuthFlow({
+      const callbackUrlText = await chrome.identity.launchWebAuthFlow({
         url,
         interactive: true,
       });
-      console.log(">> askQuireToGrantAccess: authResponse: ", authResponse);
-      const authResult = { responseUrl: authResponse.responseUrl, error: chrome.runtime.lastError?.message };
-      if (authResult.error || !authResult.responseUrl) return false;
-
-      const callbackUrl = new URL(authResult.responseUrl);
-      if (callbackUrl.searchParams.get("state") !== expectedState) return false;
-      if (callbackUrl.searchParams.has("error")) return false;
+      const callbackUrl = new URL(callbackUrlText);
+      if (callbackUrl.searchParams.get("state") !== expectedState) return "Sign-in could not be verified. Please try again.";
+      if (callbackUrl.searchParams.has("error")) return callbackUrl.searchParams.get("error_description") || callbackUrl.searchParams.get("error");
       const code = callbackUrl.searchParams.get("code");
-      if (!code) return false;
+      console.log(">> askQuireToGrantAccess: code: ", code);
+      if (!code) return "Quire did not return an authorization code.";
 
       const response = await LoginHttpService.postCode(code, redirectUri);
-      return await this.handleResponse(response);
+      return await this.handleResponse(response) || response.error || response.message || "Quire sign-in failed while exchanging the authorization code.";
     } catch (error) {
       console.error("Quire sign-in failed:", error.message);
-      return false;
+      try {
+        const response = await fetch(url);
+        const message = await response.text();
+        console.log(">> askQuireToGrantAccess: response: ", message);
+        return message || error.message || "Quire sign-in failed.";
+      } catch (error) {
+        console.error("Quire sign-in failed:", error.message);
+        return error.message || "Quire sign-in failed.";
+      }
     } finally {
       await StorageService.removeLocal(StorageConstants.QUIRE.STATE);
     }

@@ -15,6 +15,7 @@
   "host_permissions": [
     "https://quire.io/*",
     "https://quire-anywhere.hunterwilhelm.com/*",
+    "https://quire-anywhere-extension-git-feature-verce-3647df-hunterwilhelm.vercel.app/*",
     "https://docs.google.com/*",
     "https://api.augmentedsteam.com/*"
   ],
