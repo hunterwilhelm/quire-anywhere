@@ -17,9 +17,9 @@ project root to this directory and configure:
 
 - `QUIRE_CLIENT_SECRET`: the Quire OAuth app client secret.
 - `QUIRE_REDIRECT_URI`: the exact Chrome identity redirect URL, `https://<extension-id>.chromiumapp.org/`.
-- `ALLOWED_EXTENSION_ORIGIN`: the extension origin, `chrome-extension://<extension-id>`.
 
 Register the redirect URL in the Quire OAuth app. Use the published extension ID for production; unpacked installs may have a different
-ID and therefore require a matching OAuth redirect and CORS origin. If you deploy the API elsewhere, update `app/modules/app.config.js`
+ID and therefore require a matching OAuth redirect. The relay accepts CORS requests from Chrome extension origins, so no separate origin
+setting is needed. If you deploy the API elsewhere, update `app/modules/app.config.js`
 and its host permission in `app/manifest.json`. Run `npm install` and `npm run typecheck` in `quire-anywhere/`. The extension source remains
 JavaScript and has no build step. Never commit environment values.

@@ -1,9 +1,9 @@
-import {LoginHttpService} from "./login.http.service.js";
-import {AppStatusKeys} from "./app.status.keys.js";
-import {StorageService} from "./storage.service.js";
-import {ApiDataService} from "./api.data.service.js";
-import {StorageConstants} from "./storage.constants.js";
-import {AppConfig} from "./app.config.js";
+import { ApiDataService } from "./api.data.service.js";
+import { AppConfig } from "./app.config.js";
+import { AppStatusKeys } from "./app.status.keys.js";
+import { LoginHttpService } from "./login.http.service.js";
+import { StorageConstants } from "./storage.constants.js";
+import { StorageService } from "./storage.service.js";
 
 export class LoginDataService {
   constructor() {
@@ -61,14 +61,15 @@ export class LoginDataService {
     await StorageService.saveLocal(StorageConstants.QUIRE.STATE, expectedState);
 
     try {
-      const authResult = await new Promise(resolve => {
-        chrome.identity.launchWebAuthFlow({
-          url: this._loginHttpService.getAuthorizationUrl(redirectUri),
-          interactive: true,
-        }, responseUrl => {
-          resolve({responseUrl, error: chrome.runtime.lastError?.message});
-        });
+      console.log(">> askQuireToGrantAccess: redirectUri: ", redirectUri);
+      const url = this._loginHttpService.getAuthorizationUrl(redirectUri);
+      console.log(">> askQuireToGrantAccess: url: ", url);
+      const authResponse = await chrome.identity.launchWebAuthFlow({
+        url,
+        interactive: true,
       });
+      console.log(">> askQuireToGrantAccess: authResponse: ", authResponse);
+      const authResult = { responseUrl: authResponse.responseUrl, error: chrome.runtime.lastError?.message };
       if (authResult.error || !authResult.responseUrl) return false;
 
       const callbackUrl = new URL(authResult.responseUrl);

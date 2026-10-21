@@ -1,10 +1,10 @@
-import {ApiDataService} from "../../modules/api.data.service.js";
-import {LoginDataService} from "../../modules/login.data.service.js";
-import {StorageService} from "../../modules/storage.service.js";
-import {ChromeService} from "../../modules/chrome.service.js";
-import {StorageConstants} from "../../modules/storage.constants.js";
-import {ChromeConstants} from "../../modules/chrome.constants.js";
-import {UpdateService} from "../../modules/update.service.js";
+import { ApiDataService } from "../../modules/api.data.service.js";
+import { ChromeConstants } from "../../modules/chrome.constants.js";
+import { ChromeService } from "../../modules/chrome.service.js";
+import { LoginDataService } from "../../modules/login.data.service.js";
+import { StorageConstants } from "../../modules/storage.constants.js";
+import { StorageService } from "../../modules/storage.service.js";
+import { UpdateService } from "../../modules/update.service.js";
 
 const REFRESH_ALARM = "refreshToken";
 const REFRESH_RETRY_MINUTES = 1;

@@ -42,8 +42,9 @@ export function requiredEnv(name: string): string {
 
 export function cors(req: ApiRequest, res: ApiResponse): void {
   const origin = req.headers.origin;
-  const allowedOrigin = runtimeEnv("ALLOWED_EXTENSION_ORIGIN");
-  if (origin && allowedOrigin && origin === allowedOrigin && origin.startsWith("chrome-extension://")) {
+  // Chrome extension IDs are installation-specific, so don't require a separate
+  // deployment setting just to answer the extension's CORS preflight.
+  if (origin && /^chrome-extension:\/\/[a-p]{32}$/.test(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
