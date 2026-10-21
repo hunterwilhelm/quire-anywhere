@@ -4,3 +4,4 @@
 /quire-anywhere/.vercel
 /quire-anywhere/node_modules/
 /tmp/
+.DS_Store

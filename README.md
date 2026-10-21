@@ -16,8 +16,7 @@ Settings has Site Adapters (off until enabled), grouped into collapsible categor
 project root to this directory and configure:
 
 - `QUIRE_CLIENT_SECRET`: the Quire OAuth app client secret.
-<!-- - https://chrome.google.com/webstore/detail/quire-anywhere/nojpnnfpfaepolalpokjlblonedknfgf -->
-- `QUIRE_REDIRECT_URI`: the exact Chrome identity redirect URL, `https://nojpnnfpfaepolalpokjlblonedknfgf.chromiumapp.org/`.
+- `QUIRE_REDIRECT_URI`: the exact Chrome identity redirect URL, `https://<extension-id>.chromiumapp.org/`.
 - `ALLOWED_EXTENSION_ORIGIN`: the extension origin, `chrome-extension://<extension-id>`.
 
 Register the redirect URL in the Quire OAuth app. Use the published extension ID for production; unpacked installs may have a different
