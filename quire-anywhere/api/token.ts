@@ -9,7 +9,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
   const body = req.body && typeof req.body === "object" ? req.body as Record<string, unknown> : {};
   const { code, redirect_uri: redirectUri } = body;
   if (typeof code !== "string" || code.length === 0 || code.length > 4096 ||
-      typeof redirectUri !== "string" || redirectUri !== requiredEnv("QUIRE_REDIRECT_URI")) {
+      typeof redirectUri !== "string" || !/^https:\/\/[a-p]{32}\.chromiumapp\.org\/$/.test(redirectUri)) {
     res.status(400).json({ error: "invalid_request" });
     return;
   }
