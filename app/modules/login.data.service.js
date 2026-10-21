@@ -69,7 +69,6 @@ export class LoginDataService {
       if (callbackUrl.searchParams.get("state") !== expectedState) return "Sign-in could not be verified. Please try again.";
       if (callbackUrl.searchParams.has("error")) return callbackUrl.searchParams.get("error_description") || callbackUrl.searchParams.get("error");
       const code = callbackUrl.searchParams.get("code");
-      console.log(">> askQuireToGrantAccess: code: ", code);
       if (!code) return "Quire did not return an authorization code.";
 
       const response = await LoginHttpService.postCode(code, redirectUri);
@@ -79,7 +78,7 @@ export class LoginDataService {
       try {
         const response = await fetch(url);
         const message = await response.text();
-        console.log(">> askQuireToGrantAccess: response: ", message);
+        console.error(">> Quire said: ", message);
         return message || error.message || "Quire sign-in failed.";
       } catch (error) {
         console.error("Quire sign-in failed:", error.message);
