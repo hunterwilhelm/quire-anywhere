@@ -1,7 +1,7 @@
 export class AppConfig {
   static clientId = 'HSP1ENUG8Zm9PK9zOxyLnxfP';
 
-  static apiUrl = 'https://quire-anywhere-extension-git-feature-verce-3647df-hunterwilhelm.vercel.app/api';
+  static apiUrl = 'https://quire-anywhere.hunterwilhelm.com/api';
   static tokenUrl = `${this.apiUrl}/token`;
   static refreshUrl = `${this.apiUrl}/refresh`;
 
