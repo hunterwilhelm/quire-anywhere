@@ -1,6 +1,5 @@
-import type { ApiRequest, ApiResponse } from "./types";
+import type { ApiRequest, ApiResponse } from "./types.js";
 
-export const CLIENT_ID = "HSP1ENUG8Zm9PK9zOxyLnxfP";
 const TOKEN_URL = "https://quire.io/oauth/token";
 
 export interface TokenResponse {
@@ -13,7 +12,7 @@ export interface TokenResponse {
 export async function exchangeToken(params: Record<string, string>): Promise<TokenResponse> {
   const body = new URLSearchParams({
     ...params,
-    client_id: CLIENT_ID,
+    client_id: requiredEnv("QUIRE_CLIENT_ID"),
     client_secret: requiredEnv("QUIRE_CLIENT_SECRET"),
   });
   const response = await fetch(TOKEN_URL, {
@@ -42,8 +41,9 @@ export function requiredEnv(name: string): string {
 
 export function cors(req: ApiRequest, res: ApiResponse): void {
   const origin = req.headers.origin;
-  const allowedOrigin = runtimeEnv("ALLOWED_EXTENSION_ORIGIN");
-  if (origin && allowedOrigin && origin === allowedOrigin && origin.startsWith("chrome-extension://")) {
+  // Chrome extension IDs are installation-specific, so don't require a separate
+  // deployment setting just to answer the extension's CORS preflight.
+  if (origin && /^chrome-extension:\/\/[a-p]{32}$/.test(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");

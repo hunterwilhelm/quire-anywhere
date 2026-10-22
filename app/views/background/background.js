@@ -1,17 +1,20 @@
-import {ApiDataService} from "../../modules/api.data.service.js";
-import {LoginDataService} from "../../modules/login.data.service.js";
-import {StorageService} from "../../modules/storage.service.js";
-import {ChromeService} from "../../modules/chrome.service.js";
-import {StorageConstants} from "../../modules/storage.constants.js";
-import {ChromeConstants} from "../../modules/chrome.constants.js";
-import {UpdateService} from "../../modules/update.service.js";
+import { ApiDataService } from "../../modules/api.data.service.js";
+import { ChromeConstants } from "../../modules/chrome.constants.js";
+import { ChromeService } from "../../modules/chrome.service.js";
+import { LoginDataService } from "../../modules/login.data.service.js";
+import { StorageConstants } from "../../modules/storage.constants.js";
+import { StorageService } from "../../modules/storage.service.js";
+import { UpdateService } from "../../modules/update.service.js";
 
 const REFRESH_ALARM = "refreshToken";
 const REFRESH_RETRY_MINUTES = 1;
 
-function onLoginRequestedHandler(request) {
+function onLoginRequestedHandler(request, sender, sendResponse) {
   if (request?.login) {
-    void new LoginDataService().askQuireToGrantAccess();
+    new LoginDataService().askQuireToGrantAccess()
+        .then(result => sendResponse({loginError: result === true ? "" : result}))
+        .catch(error => sendResponse({loginError: error.message || "Quire sign-in failed."}));
+    return true;
   }
 }
 

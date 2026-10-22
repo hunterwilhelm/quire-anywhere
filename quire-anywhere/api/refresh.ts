@@ -1,5 +1,5 @@
-import type { ApiRequest, ApiResponse } from "./_lib/types";
-import { cors, exchangeToken, handleOptions, methodNotAllowed } from "./_lib/quire";
+import type { ApiRequest, ApiResponse } from "./_lib/types.js";
+import { cors, exchangeToken, handleOptions, methodNotAllowed } from "./_lib/quire.js";
 
 export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
   if (handleOptions(req, res)) return;
